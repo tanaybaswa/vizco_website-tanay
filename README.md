@@ -2,7 +2,7 @@
 
 Marketing site for **VizCo, The AI & Emerging Risk Specialty Broker** (vizco.co).
 
-Built with Next.js 15 (App Router), React 19, Tailwind CSS v4 and lucide-react icons. Every page is a static server component, and there is no backend.
+Built with Next.js 15 (App Router), React 19, Tailwind CSS v4 and lucide-react icons. Every page is a static server component. The one exception is the AI Cover Compass, which has three small API routes and a Redis database (see below).
 
 ## Run it
 
@@ -24,6 +24,7 @@ npm run build      # production build
 | `src/app/insights/` | Insights index and one folder per post. Post list and dates live in `src/content/insights.ts` |
 | `src/content/sources.ts`, `src/components/Cite.tsx` | Every cited source, and the inline source link used beside each claim in posts |
 | `src/app/emerging-risk/` | Physical AI: humanoid robots, robots at work, autonomous systems |
+| `src/app/compass/`, `src/components/compass/` | The AI Cover Compass: a live poll game for insurance professionals. Content in `src/content/compass.ts`; scoring, storage and share images in `src/lib/compass/`; API in `src/app/api/compass/`. Plan and launch steps: `docs/ai-cover-compass.md` |
 | `src/app/about/`, `src/app/contact/` | Team and contact |
 | `src/app/sitemap.ts`, `src/app/robots.ts` | Sitemap and robots.txt (AI crawlers allowed) |
 | `src/components/ui.tsx` | Shared building blocks: `Container`, `Section`, `SectionHeader`, `Block`, `Label`, `Card`, `Faq`, `Button`, `Em` |
@@ -39,7 +40,7 @@ npm run build      # production build
 | `src/lib/seo.ts`, `src/components/JsonLd.tsx` | Per-page metadata helper and structured data |
 | `public/llms.txt` | Plain-text summary for AI answer engines |
 | `public/investors/` | Investor logos (black on transparent) |
-| `docs/` | How the hero portrait (`hero-portrait.md`) and the favicon (`favicon.md`) were made, and how to rebuild them |
+| `docs/` | How the hero portrait (`hero-portrait.md`) and the favicon (`favicon.md`) were made, and the AI Cover Compass plan (`ai-cover-compass.md`) |
 | `design/` | Source art and build scripts for those images. Not served; `public/` and `src/app/` hold the generated files |
 
 ## Design system
@@ -78,7 +79,12 @@ The only expected hits are in `the-problem` (the 2017 UK cyber-risk precedent an
 - Structured data: Organization and WebSite on every page (in `layout.tsx`); FAQPage on home, startups and enterprise; Service on startups, enterprise and emerging risk; Article with citations on the-problem.
 - **When you add a page:** add it to `src/app/sitemap.ts`, give it `pageMeta`, and add a line to `public/llms.txt`.
 - **When you add an insight:** add it to `src/content/insights.ts` (it then appears on /insights, in related posts and in the sitemap automatically), create `src/app/insights/<slug>/page.tsx` using `<Article>` and `<Cite s="...">`, add any new source to `src/content/sources.ts`, and add a line to `public/llms.txt`. Every claim needs a source beside it.
+- **When you edit the Compass:** changing a scored case or position changes what its votes mean, so bump `COMPASS.version` in `src/content/compass.ts`. Votes are stored per version.
 - **When you edit the-problem:** update `UPDATED` and `UPDATED_LABEL` at the top of the page. The visible "Updated" date and the article's `dateModified` both come from them.
+
+## The AI Cover Compass: storage
+
+Votes are kept in Redis through Upstash's REST API. In Vercel, add "Upstash for Redis" from the Marketplace (free) to this project; it sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`. Also set `COMPASS_SALT` (any random string) and `COMPASS_ADMIN_KEY` (for `GET /api/compass/export`). Without the database, local play uses an in-memory store, and production hides live numbers rather than show partial ones. To test locally with live numbers on a production build: `COMPASS_MEMORY_STORE=1 npm start`.
 
 ## Still to do
 

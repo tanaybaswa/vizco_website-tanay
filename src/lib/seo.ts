@@ -9,15 +9,18 @@ export function pageMeta({
   path,
   absoluteTitle = false,
   type = "website",
+  image,
 }: {
   title: string;
   description: string;
   path: string;
   absoluteTitle?: boolean;
   type?: "website" | "article";
+  /** A page's own share image, in place of the site-wide one. */
+  image?: { url: string; alt: string };
 }): Metadata {
   const full = absoluteTitle ? title : `${title} | ${SITE_NAME}`;
-  const images = [{ url: "/opengraph-image.png", width: 1200, height: 630, alt: `${SITE_NAME}, ${TAGLINE}` }];
+  const images = [{ url: image?.url ?? "/opengraph-image.png", width: 1200, height: 630, alt: image?.alt ?? `${SITE_NAME}, ${TAGLINE}` }];
   return {
     title: absoluteTitle ? { absolute: title } : title,
     description,

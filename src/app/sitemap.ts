@@ -12,6 +12,7 @@ const ROUTES: { path: string; priority: number; changeFrequency: "weekly" | "mon
   { path: "/startups", priority: 0.9, changeFrequency: "monthly" },
   { path: "/enterprise", priority: 0.9, changeFrequency: "monthly" },
   { path: "/emerging-risk", priority: 0.8, changeFrequency: "monthly" },
+  { path: "/compass", priority: 0.8, changeFrequency: "weekly" },
   { path: "/about", priority: 0.6, changeFrequency: "monthly" },
   { path: "/contact", priority: 0.6, changeFrequency: "yearly" },
   { path: "/privacy-policy", priority: 0.2, changeFrequency: "yearly" },

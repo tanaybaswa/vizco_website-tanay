@@ -55,6 +55,11 @@ export const SOURCES = {
     label: "Directive (EU) 2024/2853 on liability for defective products (EUR-Lex).",
     href: "https://eur-lex.europa.eu/eli/dir/2024/2853/oj",
   },
+  arup: {
+    short: "CNN",
+    label: "CNN, report on the deepfake video-call fraud at Arup's Hong Kong office, 16 May 2024.",
+    href: "https://edition.cnn.com/2024/05/16/tech/arup-deepfake-scam-loss-hong-kong-intl-hnk/index.html",
+  },
   aiIndex: {
     short: "Stanford AI Index",
     label: "Stanford HAI, The 2026 AI Index Report, Responsible AI chapter.",

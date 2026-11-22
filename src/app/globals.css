@@ -752,3 +752,162 @@ details[open]::details-content {
     animation: none !important;
   }
 }
+
+/* ---------- The AI Cover Compass (see components/compass) ---------- */
+
+/* The map */
+.cmp-move {
+  transition: transform 1.4s var(--ease-in-out);
+}
+.cmp-land {
+  transform-origin: 0 0;
+}
+.cmp-ping {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: signal-ping 2.2s var(--ease-out) infinite;
+}
+.cmp-animate .cmp-axes line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: cmp-draw 0.9s var(--ease-in-out) 0.1s forwards;
+}
+.cmp-animate .cmp-crowd rect {
+  opacity: 0;
+  animation: cmp-crowd 0.5s var(--ease-out) forwards;
+}
+.cmp-animate .cmp-centroid {
+  opacity: 0;
+  animation: cmp-in 0.6s var(--ease-out) 1.5s forwards;
+}
+.cmp-animate .cmp-you .cmp-land {
+  animation: cmp-drop 0.8s var(--ease-out) 1.05s both;
+}
+@keyframes cmp-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes cmp-crowd {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.22;
+  }
+}
+@keyframes cmp-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes cmp-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-48px) scale(1.8);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(0) scale(0.88);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The game stage */
+@keyframes cmp-stage-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.cmp-stage-in {
+  animation: cmp-stage-in 0.55s var(--ease-out) both;
+}
+@keyframes cmp-step-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.cmp-step-in {
+  animation: cmp-step-in 0.5s var(--ease-out) both;
+}
+@keyframes cmp-bar {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.cmp-bar {
+  transform-origin: left center;
+  animation: cmp-bar 0.9s var(--ease-out) both;
+}
+@keyframes cmp-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.cmp-rise {
+  animation: cmp-rise 0.6s var(--ease-out) both;
+}
+/* The auto-advance line under a position's Next button */
+@keyframes cmp-count {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.cmp-count {
+  transform-origin: left center;
+  animation: cmp-count linear both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cmp-move {
+    transition: none;
+  }
+  .cmp-ping {
+    animation: none;
+    opacity: 0;
+  }
+  .cmp-animate .cmp-axes line,
+  .cmp-animate .cmp-crowd rect,
+  .cmp-animate .cmp-centroid,
+  .cmp-animate .cmp-you .cmp-land,
+  .cmp-stage-in,
+  .cmp-step-in,
+  .cmp-bar,
+  .cmp-rise {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .cmp-animate .cmp-crowd rect {
+    opacity: 0.22;
+  }
+  .cmp-animate .cmp-centroid {
+    opacity: 1;
+  }
+}

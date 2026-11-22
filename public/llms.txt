@@ -22,6 +22,7 @@ How VizCo works:
 - [For AI startups](https://vizco.co/startups): getting AI through enterprise procurement with AI liability insurance and certificates.
 - [For enterprise](https://vizco.co/enterprise): covering the AI an enterprise runs and the AI it buys from vendors.
 - [Emerging risk](https://vizco.co/emerging-risk): insuring humanoid robots, robots at work and autonomous systems.
+- [The AI Cover Compass](https://vizco.co/compass): a live poll for insurance professionals. Players make six calls on whether policies pay for real-world AI losses and take six positions on where AI cover should go, then see where they land on a map of the market. Results are published as an open report.
 - [About](https://vizco.co/about): the founding team and advisors.
 - [Contact](https://vizco.co/contact): book a call or email info@vizco.co.
 

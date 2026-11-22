@@ -42,6 +42,7 @@ export const FOOTER_GROUPS: { title: string; links: NavLink[] }[] = [
       { label: "The problem", href: "/the-problem" },
       { label: "Insights", href: "/insights" },
       { label: "Emerging risk", href: "/emerging-risk" },
+      { label: "AI Cover Compass", href: "/compass" },
       { label: "About", href: "/about" },
       { label: "Contact", href: "/contact" },
       { label: "Privacy", href: "/privacy-policy" },
