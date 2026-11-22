@@ -737,7 +737,7 @@ details[open]::details-content {
   }
   .hero-grid > .plate-hero {
     grid-column: 2;
-    grid-row: 1 / span 4;
+    grid-row: 1 / span 5;
     align-self: center;
     width: 100%;
     max-width: none;

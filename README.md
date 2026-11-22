@@ -34,7 +34,7 @@ npm run build      # production build
 | `src/components/PageHero.tsx`, `FinalCta.tsx`, `CoverageGap.tsx` | Hero, closing call to action, black feature panel |
 | `src/components/DoesItPay.tsx` | The problem as one claim ("Does your insurance pay?" Yes / Maybe / No), used on home and the-problem |
 | `src/components/pages/Visuals.tsx` | Illustrations (AI inventory, vendor stack, certificate) |
-| `src/content/site.ts` | Navigation, footer links, booking/checker URLs, disclaimer |
+| `src/content/site.ts` | Navigation, footer links, booking/checker URLs, disclaimer, and `PROMO`: the announcement strip, which promotes the AI Cover Compass while it's new (and shows the free check on the Compass itself) |
 | `src/content/team.ts` | Team and advisors |
 | `src/content/exposures.ts`, `src/components/ExposureGroups.tsx` | "How AI goes wrong": 12 failure modes in four groups, shown as tabs of black cards (home and enterprise) |
 | `src/lib/seo.ts`, `src/components/JsonLd.tsx` | Per-page metadata helper and structured data |

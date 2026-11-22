@@ -6,9 +6,20 @@ import { useEffect, useState, type FocusEvent, type MouseEvent } from "react";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import Wordmark from "@/components/Wordmark";
 import { SwapArrow } from "@/components/ui";
-import { BOOKING_URL, CHECKER_URL, LOGIN_URL, NAV, type NavItem } from "@/content/site";
+import { BOOKING_URL, CHECKER_PROMO, LOGIN_URL, NAV, PROMO, type NavItem } from "@/content/site";
 
 const BAR = 36; // announcement strip height, px
+const STRIP =
+  "group flex h-9 items-center justify-center gap-3 bg-cream px-4 text-[0.8125rem] font-medium tracking-[-0.005em] text-ink";
+
+/** A small "New" tag: the signal colour as a block, like the label squares. */
+function NavBadge({ children }: { children: string }) {
+  return (
+    <span className="inline-flex h-[1.125rem] shrink-0 items-center bg-signal px-1.5 font-mono text-[0.5625rem] font-medium uppercase leading-none tracking-[0.12em] text-signal-ink">
+      {children}
+    </span>
+  );
+}
 
 function isActive(pathname: string, href: string) {
   if (href.includes("#")) return false;
@@ -59,17 +70,23 @@ export default function SiteHeader() {
       className="fixed inset-x-0 top-0 z-50 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
       style={{ transform: compact ? `translateY(-${BAR}px)` : "none" }}
     >
-      {/* Announcement strip */}
-      <a
-        href={CHECKER_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="group flex h-9 items-center justify-center gap-3 bg-cream px-4 text-[0.8125rem] font-medium tracking-[-0.005em] text-ink"
-      >
-        <span aria-hidden className="signal-dot is-live !h-1.5 !w-1.5" />
-        <span className="link-draw pb-px">Check your AI insurance coverage for free</span>
-        <SwapArrow className="h-3.5 w-3.5" />
-      </a>
+      {/* Announcement strip: the Compass while it's new, the free check on the Compass itself */}
+      {pathname.startsWith(PROMO.href) ? (
+        <a href={CHECKER_PROMO.href} target="_blank" rel="noopener noreferrer" className={STRIP}>
+          <span aria-hidden className="signal-dot is-live !h-1.5 !w-1.5" />
+          <span className="link-draw pb-px">{CHECKER_PROMO.label}</span>
+          <SwapArrow className="h-3.5 w-3.5" />
+        </a>
+      ) : (
+        <Link href={PROMO.href} className={STRIP}>
+          <NavBadge>{PROMO.badge}</NavBadge>
+          <span className="link-draw truncate pb-px">
+            {PROMO.label}
+            <span className="hidden sm:inline"> {PROMO.more}</span>
+          </span>
+          <SwapArrow className="h-3.5 w-3.5" />
+        </Link>
+      )}
 
       {/* Main bar */}
       <div
@@ -104,7 +121,7 @@ export default function SiteHeader() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-2 whitespace-nowrap sm:gap-3">
             <a
               href={LOGIN_URL}
               target="_blank"
@@ -208,7 +225,7 @@ function DesktopItem({
   active: boolean;
   onPoint: (e: MouseEvent<HTMLElement> | FocusEvent<HTMLElement>) => void;
 }) {
-  const cls = `relative z-10 inline-flex h-9 items-center gap-1 whitespace-nowrap px-3.5 text-[0.875rem] font-medium tracking-[-0.01em] transition-colors duration-200 ${
+  const cls = `relative z-10 inline-flex h-9 items-center gap-1 whitespace-nowrap px-3 text-[0.875rem] font-medium tracking-[-0.01em] transition-colors duration-200 ${
     active ? "text-cream" : "text-cream-muted hover:text-cream"
   }`;
   const marker = active ? <span aria-hidden className="absolute -bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 bg-signal" /> : null;
@@ -246,8 +263,20 @@ function DesktopItem({
   }
 
   return (
-    <Link href={item.href} className={cls} onMouseEnter={onPoint} onFocus={onPoint} aria-current={active ? "page" : undefined}>
-      {item.label}
+    <Link
+      href={item.href}
+      className={cls}
+      onMouseEnter={onPoint}
+      onFocus={onPoint}
+      aria-current={active ? "page" : undefined}
+      aria-label={item.short ? item.label : undefined}
+    >
+      {item.short ?? item.label}
+      {item.badge ? (
+        <span className="ml-1">
+          <NavBadge>{item.badge}</NavBadge>
+        </span>
+      ) : null}
       {marker}
     </Link>
   );
@@ -257,7 +286,10 @@ function MobileLink({ item, index, active }: { item: NavItem; index: number; act
   const inner = (
     <>
       <span className="w-7 shrink-0 font-mono text-[0.6875rem] text-subtle">{String(index + 1).padStart(2, "0")}</span>
-      <span className="font-display flex-1 text-[1.75rem] leading-none tracking-[-0.035em] sm:text-[2rem]">{item.label}</span>
+      <span className="font-display flex flex-1 items-center gap-3 text-[1.75rem] leading-none tracking-[-0.035em] sm:text-[2rem]">
+        {item.label}
+        {item.badge ? <NavBadge>{item.badge}</NavBadge> : null}
+      </span>
       {active ? <span aria-hidden className="h-2 w-2 bg-signal" /> : <SwapArrow className="h-5 w-5 text-subtle" />}
     </>
   );

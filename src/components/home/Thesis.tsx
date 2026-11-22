@@ -2,7 +2,7 @@ import Link from "next/link";
 import FixNote from "@/components/home/FixNote";
 import HeroPortrait from "@/components/home/portrait/HeroPortrait";
 import { Button, Container, SwapArrow } from "@/components/ui";
-import { BOOKING_URL, CHECKER_URL, TAGLINE } from "@/content/site";
+import { BOOKING_URL, CHECKER_URL, PROMO, TAGLINE } from "@/content/site";
 
 const AUDIENCES = [
   { href: "/enterprise", label: "For enterprises" },
@@ -16,7 +16,23 @@ const AUDIENCES = [
 export default function Thesis() {
   return (
     <section className="relative isolate">
-      <Container className="hero-grid relative pb-20 pt-14 sm:pb-24 sm:pt-20 lg:pb-32 lg:pt-28">
+      <Container className="hero-grid relative pb-20 pt-10 sm:pb-24 sm:pt-16 lg:pb-32 lg:pt-20">
+        {/* The AI Cover Compass, while it's new */}
+        <Link
+          href={PROMO.href}
+          className="group anim-in relative z-10 mb-9 inline-flex w-fit max-w-full items-center gap-3 border border-line-strong bg-surface py-1.5 pl-1.5 pr-3.5 text-[0.875rem] tracking-[-0.01em] text-cream shadow-[var(--shadow-card)] transition-[border-color,box-shadow] duration-300 hover:border-cream hover:shadow-[var(--shadow-lift)] sm:mb-11"
+        >
+          <span className="bg-signal px-2 py-1 font-mono text-[0.625rem] font-medium uppercase leading-none tracking-[0.12em] text-signal-ink">
+            {PROMO.badge}
+          </span>
+          <span className="truncate font-medium">AI Cover Compass</span>
+          <span className="hidden truncate text-cream-muted md:inline">{PROMO.label}</span>
+          <span aria-hidden className="h-4 w-px shrink-0 bg-line-strong" />
+          <span className="flex shrink-0 items-center gap-1.5 font-medium">
+            Play now
+            <SwapArrow className="h-3.5 w-3.5" />
+          </span>
+        </Link>
         <h1 className="wipe font-display t-display anim-in relative z-10 max-w-[15em] text-balance text-cream" style={{ animationDelay: "40ms" }}>
           Your insurance <br className="hidden md:inline" />
           wasn&apos;t written for AI.{" "}

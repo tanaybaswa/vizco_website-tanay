@@ -204,7 +204,7 @@ flowchart LR
 2. **Set two variables:** `COMPASS_SALT` (any random string) and `COMPASS_ADMIN_KEY` (a long random string, for the export).
 3. **Merge and deploy.** Then play once on the live site and check that `vizco.co/api/compass/stats` shows `"live": true` and one player.
 4. **Pilot with 10 to 20 friendly professionals** before any public post. Watch for cases people misread; fix and bump the version if a scored item changes.
-5. **Turn on the entry points** (decision 2): the announcement strip, a home page panel, the nav.
+5. **Entry points are on:** "Compass" with a New tag first in the nav, a "New · Play now" pill above the home headline, and the announcement strip on every page except the Compass itself (which keeps the free coverage check). Retire them by editing `PROMO` and `NAV` in `src/content/site.ts`.
 6. **Counsel.** A short privacy notice for the Compass (the site's privacy policy covers only the VizCo Chat app); a check on the disclaimer and on naming real cases.
 7. **Export the data** any time: `curl -H "Authorization: Bearer $COMPASS_ADMIN_KEY" https://vizco.co/api/compass/export`.
 
@@ -257,7 +257,7 @@ The headline the data can earn is of the form "X of 6 AI loss scenarios are cont
 | # | Decision | Options | Recommendation |
 | --- | --- | --- | --- |
 | 1 | Name | The AI Cover Compass; Covered?; The Coverage Compass | **The AI Cover Compass.** One constant in `src/content/compass.ts` if we change it |
-| 2 | Entry points on the site | Announcement strip; home page panel; nav item | Swap the announcement strip to the Compass for launch weeks, then add a home panel |
+| 2 | Entry points on the site | Announcement strip; home page panel; nav item | **Done:** all three, with a New tag. Revisit after launch weeks |
 | 3 | Policy-type names in cases | Keep the site rule; allow them in the Compass | Keep the rule for v1; revisit if pilots find the cases too vague |
 | 4 | Real wordings | Specimens; quote public forms | Specimens for v1; counsel before quoting public forms in v2 |
 | 5 | Founding credit | Opt-in name; no names | Opt-in, ticked by default, clearly worded (as built) |
