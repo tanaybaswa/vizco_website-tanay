@@ -40,7 +40,7 @@ export default function StanceStep({
   const number = bonus ? 0 : STANCES.findIndex((s) => s.id === item.id) + 1;
 
   return (
-    <article className="cmp-step-in grid h-full grid-rows-[auto_minmax(0,1fr)_auto] gap-3 sm:gap-5 short:gap-3">
+    <article className="cmp-step-in grid h-full grid-rows-[auto_minmax(0,1fr)_auto] gap-3 sm:gap-5 lg:h-auto lg:grid-rows-none lg:gap-5 short:gap-3 short:lg:gap-4">
       <p className="eyebrow text-cream-muted">
         {bonus ? (
           <>
@@ -55,14 +55,14 @@ export default function StanceStep({
 
       {/* The sketch, with the statement beside it */}
       <div className="flex min-h-0 flex-col gap-3 md:grid md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:items-center md:gap-10">
-        <div className="relative min-h-0 flex-1 md:h-full">
+        <div className="relative min-h-0 flex-1 md:h-full lg:h-[clamp(11rem,30vh,17rem)] lg:flex-none short:lg:h-[clamp(10rem,28vh,14rem)]">
           <Image src={item.art.src} alt={item.art.alt} fill unoptimized priority sizes="(min-width: 768px) 40vw, 100vw" className="select-none object-contain" />
         </div>
         <div className="shrink-0">
           <h2
             ref={headingRef}
             tabIndex={-1}
-            className="font-display text-balance text-[1.625rem] leading-[1.06] tracking-[-0.036em] text-cream outline-none sm:text-[2.5rem] lg:text-[3.25rem] short:lg:text-[2.625rem]"
+            className="font-display text-balance text-[1.625rem] leading-[1.06] tracking-[-0.036em] text-cream outline-none sm:text-[2.5rem] lg:text-[2.75rem] short:lg:text-[2.375rem]"
           >
             &ldquo;{item.statement}&rdquo;
           </h2>
@@ -84,7 +84,7 @@ export default function StanceStep({
               aria-checked={on}
               aria-label={`${a.label}${share !== null ? `, ${share}% of players` : ""}`}
               onClick={() => onVote(a.id)}
-              className={`relative flex min-h-[3.5rem] items-center justify-between gap-2 overflow-hidden border px-3 py-2 text-left transition-[background-color,border-color,color,box-shadow] duration-200 sm:min-h-[6.5rem] sm:flex-col sm:items-start sm:p-4 short:sm:min-h-[5rem] ${
+              className={`relative flex min-h-[3.5rem] items-center justify-between gap-2 overflow-hidden border px-3 py-2 text-left transition-[background-color,border-color,color,box-shadow] duration-200 sm:min-h-[6.5rem] sm:flex-col sm:items-start sm:p-4 lg:min-h-[5.5rem] short:sm:min-h-[5rem] ${
                 on ? `${tone.solid} border-transparent text-white shadow-[var(--shadow-lift)]` : `${tone.soft} ${tone.line} text-cream hover:shadow-[var(--shadow-card)]`
               }`}
             >

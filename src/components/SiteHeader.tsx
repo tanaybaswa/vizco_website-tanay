@@ -77,7 +77,8 @@ export default function SiteHeader() {
   return (
     <header
       className="fixed inset-x-0 top-0 z-50 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
-      style={{ transform: compact ? `translateY(-${BAR}px)` : "none" }}
+      // The strip is 2.25rem tall (h-9), and the site scales rem up on wide screens, so hide it by rem, not px
+      style={{ transform: compact ? "translateY(-2.25rem)" : "none" }}
     >
       {/* Announcement strip: the Compass while it's new, the free check on the Compass itself */}
       {pathname.startsWith(PROMO.href) ? (

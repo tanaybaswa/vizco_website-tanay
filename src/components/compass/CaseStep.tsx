@@ -33,9 +33,9 @@ export default function CaseStep({
   const number = CASES.findIndex((c) => c.id === item.id) + 1;
 
   return (
-    <article className="cmp-step-in grid h-full grid-rows-[auto_minmax(0,1fr)_auto] gap-3 sm:gap-5 short:gap-3">
+    <article className="cmp-step-in grid h-full grid-rows-[auto_minmax(0,1fr)_auto] gap-3 sm:gap-5 lg:h-auto lg:grid-rows-none lg:gap-5 short:gap-3 short:lg:gap-4">
       {/* The story */}
-      <header className="grid gap-x-10 gap-y-1.5 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-end">
+      <header className="grid gap-x-10 gap-y-1.5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-end">
         <div>
           <p className="eyebrow text-cream-muted">
             <span className="text-cream">Case {String(number).padStart(2, "0")}</span> / {String(CASES.length).padStart(2, "0")}
@@ -43,7 +43,7 @@ export default function CaseStep({
           <h2
             ref={headingRef}
             tabIndex={-1}
-            className="font-display mt-1.5 text-balance text-[1.75rem] leading-[1.02] tracking-[-0.038em] text-cream outline-none sm:mt-2 sm:text-[2.5rem] lg:text-[3rem] short:text-[1.375rem] short:sm:text-[2.25rem] short:lg:text-[2.375rem]"
+            className="font-display mt-1.5 text-balance text-[1.75rem] leading-[1.02] tracking-[-0.038em] text-cream outline-none sm:mt-2 sm:text-[2.5rem] lg:text-[2.5rem] short:text-[1.375rem] short:sm:text-[2.25rem] short:lg:text-[2.375rem]"
           >
             {item.title}
           </h2>
@@ -60,7 +60,7 @@ export default function CaseStep({
       {/* The sketch, with the policy laid beside it */}
       <div className="flex min-h-0 flex-col md:grid md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:items-center">
         {/* On a phone the paper overlaps the sketch's lower edge, so both keep their room */}
-        <div className="relative min-h-[6.5rem] flex-1 md:h-full md:min-h-0 short:min-h-[5rem]">
+        <div className="relative min-h-[6.5rem] flex-1 md:h-full md:min-h-0 lg:h-[clamp(11.5rem,30vh,18rem)] lg:flex-none short:min-h-[5rem] short:lg:h-[clamp(11rem,30vh,15rem)]">
           <Image src={item.art.src} alt={item.art.alt} fill unoptimized priority sizes="(min-width: 768px) 55vw, 100vw" className="select-none object-contain object-top md:object-center" />
         </div>
         <PolicyPaper clause={item.clause} className="relative z-10 -mt-6 ml-auto mr-1 w-[90%] shrink-0 md:-ml-8 md:mr-0 md:mt-0 md:w-auto short:-mt-4" />
@@ -68,7 +68,7 @@ export default function CaseStep({
 
       {/* The call */}
       <div className="grid gap-2 sm:gap-3 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-center lg:gap-8">
-        <h3 className="font-display text-[1.375rem] leading-none tracking-[-0.03em] text-cream sm:text-[1.75rem] lg:text-[2rem] short:text-[1.25rem]">Does it pay?</h3>
+        <h3 className="font-display text-[1.375rem] leading-none tracking-[-0.03em] text-cream sm:text-[1.75rem] lg:text-[1.875rem] short:text-[1.25rem]">Does it pay?</h3>
         <div role="radiogroup" aria-label="Does it pay?" className="grid grid-cols-3 gap-2 sm:gap-3">
           {VERDICTS.map((v, i) => {
             const Icon = ICONS[v.id];
@@ -83,7 +83,7 @@ export default function CaseStep({
                 aria-checked={on}
                 aria-label={`${v.label}, ${v.tag}${share !== null ? `, ${share}% of players` : ""}`}
                 onClick={() => onVote(v.id)}
-                className={`group relative flex min-h-[4.5rem] flex-col justify-between gap-2 overflow-hidden border p-2.5 text-left short:min-h-[3.75rem] short:gap-1 short:py-2 transition-[background-color,border-color,color,box-shadow] duration-200 sm:min-h-[6.25rem] sm:gap-3 sm:p-4 short:sm:min-h-[5rem] ${
+                className={`group relative flex min-h-[4.5rem] flex-col justify-between gap-2 overflow-hidden border p-2.5 text-left short:min-h-[3.75rem] short:gap-1 short:py-2 transition-[background-color,border-color,color,box-shadow] duration-200 sm:min-h-[6.25rem] sm:gap-3 sm:p-4 lg:min-h-[5.5rem] short:sm:min-h-[5rem] ${
                   on ? `${t.solid} border-transparent text-white shadow-[var(--shadow-lift)]` : `${t.soft} ${t.line} text-cream hover:shadow-[var(--shadow-card)]`
                 }`}
               >

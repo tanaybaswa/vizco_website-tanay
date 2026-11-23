@@ -28,7 +28,7 @@ export function RoleStep({
   headingRef: Ref<HTMLHeadingElement>;
 }) {
   return (
-    <section className="cmp-step-in flex h-full flex-col">
+    <section className="cmp-step-in flex h-full flex-col lg:h-auto">
       <div className="my-auto">
         <p className="eyebrow flex items-center gap-3 text-cream-muted">
           <span aria-hidden className="signal-dot is-live" />
@@ -173,7 +173,7 @@ export function EmailForm({
 /** Last step, part two: where to send the results. Fits one screen; the footer holds the buttons. */
 export function EmailStep({ onSubmit, headingRef }: { onSubmit: (d: Details) => void; headingRef: Ref<HTMLHeadingElement> }) {
   return (
-    <section className="cmp-step-in flex h-full flex-col">
+    <section className="cmp-step-in flex h-full flex-col lg:h-auto">
       <div className="my-auto">
         <p className="eyebrow flex items-center gap-3 text-cream-muted">
           <span aria-hidden className="signal-dot is-live" />

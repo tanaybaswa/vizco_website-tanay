@@ -1,23 +1,20 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, RotateCcw } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Container, Label, SwapArrow } from "@/components/ui";
 import CompassChart from "@/components/compass/CompassChart";
 import CaseStep from "@/components/compass/CaseStep";
 import StanceStep from "@/components/compass/StanceStep";
 import { EmailStep, RoleStep, type Details } from "@/components/compass/LastStep";
 import ResultView, { type EmailState, type Result } from "@/components/compass/ResultView";
-import ShareBar from "@/components/compass/ShareBar";
 import { NextButton, StageFooter, Status } from "@/components/compass/Stage";
 import { ARCHETYPES, CASES, COMPASS, ITEMS, VERDICTS, type Agree, type RegionId, type RoleId, type Verdict } from "@/content/compass";
-import { BOOKING_URL } from "@/content/site";
 import { START_EVENT, STAGE_EVENT } from "@/lib/compass/events";
 import {
   archetypeOf,
   countsFor,
   decodeCalls,
-  encodeCalls,
   positionOf,
   splitScore,
   type Answers,
@@ -282,89 +279,83 @@ export default function CompassGame() {
         .sort((a, b) => b.score - a.score)[0]
     : null;
 
-  if (open) {
-    const wide = phase === "result";
+  // The result is a normal, scrolling page: one long read, with sharing to hand.
+  if (open && phase === "result" && result) {
     return (
-      <section aria-label={COMPASS.name} className="-mt-9 flex h-[calc(100dvh-4.25rem)] flex-col">
-        <ProgressBar index={index} total={ITEMS.length} phase={phase} onExit={exit} wide={wide} />
-        <div className={`mx-auto min-h-0 w-full flex-1 overflow-y-auto overflow-x-hidden px-5 py-3 sm:px-8 sm:py-5 lg:px-10 short:py-3 ${wide ? "max-w-7xl" : "max-w-6xl"}`}>
-          {phase === "play" && item.kind === "case" ? (
-            <CaseStep key={item.id} item={item} answer={answer as Verdict | undefined} view={view} onVote={vote} headingRef={heading} />
-          ) : null}
-          {phase === "play" && item.kind !== "case" ? (
-            <StanceStep key={item.id} item={item} answer={answer as Agree | undefined} view={view} onVote={vote} headingRef={heading} />
-          ) : null}
-          {phase === "role" ? <RoleStep role={role} region={region} onRole={setRole} onRegion={setRegion} headingRef={heading} /> : null}
-          {phase === "email" ? <EmailStep headingRef={heading} onSubmit={(d) => void finish(d)} /> : null}
-          {phase === "plotting" ? <Plotting /> : null}
-          {phase === "result" && result ? (
-            <ResultView
-              result={result}
-              stats={stats}
-              role={role}
-              challenger={challenger}
-              email={email}
-              onEmail={(d) => void sendDetails(d, result.archetype)}
-              headingRef={heading}
-            />
-          ) : null}
+      <section aria-label={COMPASS.name} className="-mt-9">
+        <ProgressBar index={index} total={ITEMS.length} phase={phase} onExit={exit} wide />
+        <div className="mx-auto w-full max-w-7xl px-5 pb-28 pt-8 sm:px-8 sm:pb-24 sm:pt-12 lg:px-10">
+          <ResultView
+            result={result}
+            stats={stats}
+            role={role}
+            challenger={challenger}
+            email={email}
+            onEmail={(d) => void sendDetails(d, result.archetype)}
+            onReplay={start}
+            headingRef={heading}
+          />
         </div>
+      </section>
+    );
+  }
 
-        {phase === "play" ? (
-          <StageFooter
-            status={
-              view ? (
-                <Status headline={view.headline} detail={view.detail} />
-              ) : item.kind === "case" ? (
-                <Status headline="Make your call." detail="Yes, Arguable or No. You'll see how everyone called it." />
-              ) : (
-                <Status headline="Take a side." detail="Then see how everyone else leans." />
-              )
-            }
-          >
-            <NextButton
-              onClick={next}
-              disabled={answer === undefined}
-              label={isLast ? "Last step" : "Next"}
-              countdown={item.kind !== "case" && answer !== undefined && !isLast && auto ? DWELL : null}
-            />
-          </StageFooter>
-        ) : null}
-        {phase === "role" ? (
-          <StageFooter status={<Status headline="One tap." detail="Then where to send the results." />}>
-            <NextButton onClick={() => setPhase("email")} disabled={!role} />
-          </StageFooter>
-        ) : null}
-        {phase === "email" ? (
-          <StageFooter status={<span className="hidden sm:inline">Your email is never shown with your answers.</span>}>
-            <button type="button" onClick={() => void finish(null)} className="group h-12 px-2 text-[0.875rem] text-cream-muted transition-colors hover:text-cream sm:px-3 sm:text-[0.9375rem]">
-              <span className="link-draw pb-px">Skip</span>
-            </button>
-            <NextButton type="submit" form="compass-email" label="Send, show my result" />
-          </StageFooter>
-        ) : null}
-        {phase === "result" && result ? (
-          <StageFooter wide status={<ShareBar archetype={result.archetype} pos={{ x: result.x, y: result.y }} code={encodeCalls(result.answers)} />}>
-            <button
-              type="button"
-              onClick={start}
-              aria-label="Play again"
-              className="inline-flex h-11 items-center gap-2 border border-line-strong bg-surface px-3 text-[0.9375rem] font-medium text-cream transition-colors hover:border-cream sm:h-12 sm:px-4"
-            >
-              <RotateCcw className="h-4 w-4" strokeWidth={1.75} />
-              <span className="hidden sm:inline">Play again</span>
-            </button>
-            <a
-              href={BOOKING_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative hidden h-12 items-center gap-2.5 overflow-hidden bg-cream px-5 text-[0.9375rem] font-medium text-ink transition-colors hover:bg-accent-deep md:inline-flex"
-            >
-              Talk to us
-              <SwapArrow />
-            </a>
-          </StageFooter>
-        ) : null}
+  if (open) {
+    return (
+      // One screen under the header. On a phone the step fills it and the footer sits at the
+      // bottom, where thumbs are. On a laptop or desktop the step and its footer form one compact
+      // block, centred, so the question, the answers and Next are all in one glance.
+      <section aria-label={COMPASS.name} className="-mt-9 flex h-[calc(100dvh-4.25rem)] flex-col">
+        <ProgressBar index={index} total={ITEMS.length} phase={phase} onExit={exit} wide={false} />
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
+          <div className="flex min-h-0 flex-1 flex-col lg:my-auto lg:flex-none lg:py-4">
+            <div className="mx-auto min-h-0 w-full max-w-6xl flex-1 px-5 py-3 sm:px-8 sm:py-5 lg:max-w-5xl lg:flex-none lg:px-10 lg:py-0">
+              {phase === "play" && item.kind === "case" ? (
+                <CaseStep key={item.id} item={item} answer={answer as Verdict | undefined} view={view} onVote={vote} headingRef={heading} />
+              ) : null}
+              {phase === "play" && item.kind !== "case" ? (
+                <StanceStep key={item.id} item={item} answer={answer as Agree | undefined} view={view} onVote={vote} headingRef={heading} />
+              ) : null}
+              {phase === "role" ? <RoleStep role={role} region={region} onRole={setRole} onRegion={setRegion} headingRef={heading} /> : null}
+              {phase === "email" ? <EmailStep headingRef={heading} onSubmit={(d) => void finish(d)} /> : null}
+              {phase === "plotting" ? <Plotting /> : null}
+            </div>
+
+            {phase === "play" ? (
+              <StageFooter
+                status={
+                  view ? (
+                    <Status headline={view.headline} detail={view.detail} />
+                  ) : item.kind === "case" ? (
+                    <Status headline="Make your call." detail="Yes, Arguable or No. You'll see how everyone called it." />
+                  ) : (
+                    <Status headline="Take a side." detail="Then see how everyone else leans." />
+                  )
+                }
+              >
+                <NextButton
+                  onClick={next}
+                  disabled={answer === undefined}
+                  label={isLast ? "Last step" : "Next"}
+                  countdown={item.kind !== "case" && answer !== undefined && !isLast && auto ? DWELL : null}
+                />
+              </StageFooter>
+            ) : null}
+            {phase === "role" ? (
+              <StageFooter status={<Status headline="One tap." detail="Then where to send the results." />}>
+                <NextButton onClick={() => setPhase("email")} disabled={!role} />
+              </StageFooter>
+            ) : null}
+            {phase === "email" ? (
+              <StageFooter status={<span className="hidden sm:inline">Your email is never shown with your answers.</span>}>
+                <button type="button" onClick={() => void finish(null)} className="group h-12 px-2 text-[0.875rem] text-cream-muted transition-colors hover:text-cream sm:px-3 sm:text-[0.9375rem]">
+                  <span className="link-draw pb-px">Skip</span>
+                </button>
+                <NextButton type="submit" form="compass-email" label="Send, show my result" />
+              </StageFooter>
+            ) : null}
+          </div>
+        </div>
       </section>
     );
   }
@@ -487,7 +478,7 @@ function ProgressBar({ index, total, phase, onExit, wide }: { index: number; tot
   const label = phase === "play" ? `${String(index + 1).padStart(2, "0")} / ${total}` : phase === "role" || phase === "email" ? "Last step" : "Done";
   return (
     <div className="shrink-0 border-b border-line-dark bg-ink">
-      <div className={`mx-auto flex h-12 w-full items-center gap-4 px-5 sm:h-14 sm:gap-6 sm:px-8 lg:px-10 ${wide ? "max-w-7xl" : "max-w-6xl"}`}>
+      <div className={`mx-auto flex h-12 w-full items-center gap-4 px-5 sm:h-14 sm:gap-6 sm:px-8 lg:px-10 ${wide ? "max-w-7xl" : "max-w-6xl lg:max-w-5xl"}`}>
         <button
           type="button"
           onClick={onExit}
@@ -513,7 +504,7 @@ function ProgressBar({ index, total, phase, onExit, wide }: { index: number; tot
 
 function Plotting() {
   return (
-    <div className="flex h-full flex-col items-center justify-center text-center" role="status">
+    <div className="flex h-full flex-col items-center justify-center text-center lg:h-[50vh]" role="status">
       <div className="relative h-24 w-24">
         <span aria-hidden className="cmp-bar absolute inset-x-0 top-1/2 h-[1.5px] -translate-y-1/2 bg-cream" />
         <span aria-hidden className="absolute inset-y-0 left-1/2 w-[1.5px] -translate-x-1/2 bg-cream" />

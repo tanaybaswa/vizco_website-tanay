@@ -9,8 +9,12 @@ import { SwapArrow } from "@/components/ui";
  */
 export function StageFooter({ status, children, wide = false }: { status?: ReactNode; children: ReactNode; wide?: boolean }) {
   return (
-    <div className="shrink-0 border-t border-line-dark bg-ink">
-      <div className={`mx-auto flex min-h-16 w-full items-center justify-between gap-4 px-5 py-2.5 sm:min-h-[4.5rem] sm:px-8 lg:px-10 ${wide ? "max-w-7xl" : "max-w-6xl"}`}>
+    <div className="shrink-0 border-t border-line-dark bg-ink lg:border-t-0 lg:bg-transparent">
+      <div
+        className={`mx-auto flex min-h-16 w-full items-center justify-between gap-4 px-5 py-2.5 sm:min-h-[4.5rem] sm:px-8 lg:mt-5 lg:min-h-0 lg:px-10 lg:py-0 ${
+          wide ? "max-w-7xl" : "max-w-6xl lg:max-w-5xl"
+        }`}
+      >
         <div aria-live="polite" className="min-w-0 flex-1 text-[0.8125rem] leading-snug text-cream-muted sm:text-[0.9375rem]">
           {status}
         </div>

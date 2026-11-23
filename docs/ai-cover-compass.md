@@ -19,11 +19,12 @@ The insight from the first plan still holds: **if insurance professionals can't 
 
 | | First build | Now | Why |
 | --- | --- | --- | --- |
-| **Fits one screen** | Long pages that scrolled to reveal results | **Every step fits the screen with no scrolling**, from a 375 x 667 phone to a 1920 x 1080 monitor (tested at nine sizes). The sketch flexes to the height that's left; the header strip tucks away while playing | Nothing to scroll, nothing to hunt for |
+| **Fits one screen** | Long pages that scrolled to reveal results | **Every step fits the screen with no scrolling**, from a 375 x 667 phone to a 1920 x 1080 monitor (tested at nine sizes). The header strip tucks away while playing | Nothing to scroll, nothing to hunt for |
+| **Phone vs laptop** | One layout stretched to every screen | **Phone:** the step fills the screen and Next sits at the bottom, where thumbs are. **Laptop and desktop:** the question, sketch, paper, answers and Next form one compact block (about 400 to 650px tall), centred on the screen | Short eye travel on big screens; thumb reach on phones |
 | Results after each question | A panel that appeared below and scrolled into view | **Inside the answer tiles**, like a poll: your call goes solid, the others fill to their share, and the footer says "35% called it your way" | The reveal happens where your eyes already are |
 | Next | Appeared only after answering | **Always in the footer**, waiting until there's an answer. Answers lock once the split is shown | Predictable, and the data stays clean |
 | Last step | One long form | **Two short screens:** what you do, then where to send the results | Each fits one screen |
-| Result | A long page | **One screen with panels:** you (portrait, type, facts), the map, your calls, the full results; sharing in the footer | Everything worth seeing, without scrolling |
+| Result | A long page | **One long, scrolling page:** your type and the map, the numbers, share and challenge with the personal card, the full results by email, your calls, the close. On a phone a slim bar keeps "Share & challenge" in reach all the way down | The result is a read, not a screen |
 | Where it plays | A full-screen stage over the page | **Inside the page.** Nav and footer stay; a progress bar sticks under the header; the landing sections step aside while you play | It should feel like part of vizco.co, not a separate app |
 | Our view | "Our reading" after each case | **Removed.** Players see only how everyone else called it | Too opinionated for a survey |
 | Cases | A paragraph, a policy description, a clause, a definition, a note | **A two-line story, one line of wording with the key phrase highlighted, and "the catch" in one question** | Simple travels. Every extra line loses people on a phone |
