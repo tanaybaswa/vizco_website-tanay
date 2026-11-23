@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Cite from "@/components/Cite";
 import JsonLd from "@/components/JsonLd";
 import Reveal from "@/components/Reveal";
@@ -104,10 +105,11 @@ export default function CompassPage() {
               return (
                 <Reveal as="li" key={id} delay={i * 60} className="flex flex-col bg-surface p-7 sm:p-8">
                   <div className="flex items-start justify-between gap-4">
-                    <MiniCompass id={id} />
+                    <MiniCompass id={id} className="h-8 w-8" />
                     <span className="eyebrow text-right !text-[0.65625rem] text-subtle">{a.where}</span>
                   </div>
-                  <h3 className="font-display t-h3 mt-8 text-cream">{a.name}</h3>
+                  <Image src={a.art.src} alt={a.art.alt} width={1024} height={1024} unoptimized className="mx-auto mt-4 h-auto w-full max-w-[15rem] select-none" />
+                  <h3 className="font-display t-h3 mt-4 text-cream">{a.name}</h3>
                   <p className="mt-3 text-[0.9375rem] leading-relaxed text-cream-muted sm:text-base">{a.line}</p>
                   <p className="mt-auto pt-6 text-[0.9375rem] italic text-cream">&ldquo;{a.says}&rdquo;</p>
                 </Reveal>

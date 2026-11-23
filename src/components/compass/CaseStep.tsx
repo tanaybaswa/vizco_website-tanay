@@ -1,9 +1,11 @@
 "use client";
 
-import { Fragment, useEffect, useRef, type ReactNode, type Ref } from "react";
+import { useEffect, useRef, type Ref } from "react";
+import Image from "next/image";
 import { Check, X } from "lucide-react";
 import Cite from "@/components/Cite";
 import { QuestionMark, SwapArrow } from "@/components/ui";
+import PolicyPaper from "@/components/compass/PolicyPaper";
 import SplitBars from "@/components/compass/SplitBars";
 import { TONE } from "@/components/compass/tones";
 import { CASES, ROLES, VERDICTS, type CaseItem, type RoleId, type Verdict } from "@/content/compass";
@@ -16,23 +18,10 @@ const VERDICT_IDS = VERDICTS.map((v) => v.id);
 export const SHOW_FROM = 5;
 export const EARLY = 30;
 
-/** The wording, with the phrase that matters set in the black block. */
-function Wording({ text }: { text: string }) {
-  return (
-    <>
-      {text.split(/\[\[(.+?)\]\]/g).map((part, i) =>
-        i % 2 ? (
-          <span key={i} className="block-mark">
-            {part}
-          </span>
-        ) : (
-          <Fragment key={i}>{part}</Fragment>
-        ),
-      )}
-    </>
-  );
-}
-
+/**
+ * One case, always laid out the same way: the story, then the sketch with the policy paper
+ * beside it, then the call.
+ */
 export default function CaseStep({
   item,
   step,
@@ -43,11 +32,10 @@ export default function CaseStep({
   onVote,
   onNext,
   isLast,
-  who,
   headingRef,
 }: {
   item: CaseItem;
-  step: "ask" | "who" | "reveal";
+  step: "ask" | "reveal";
   answer?: Verdict;
   tally?: Tally;
   role: RoleId | null;
@@ -55,13 +43,12 @@ export default function CaseStep({
   onVote: (v: Verdict) => void;
   onNext: () => void;
   isLast: boolean;
-  who: ReactNode;
   headingRef: Ref<HTMLHeadingElement>;
 }) {
   const number = CASES.findIndex((c) => c.id === item.id) + 1;
   const after = useRef<HTMLDivElement>(null);
 
-  // The role picker and the reveal land below the fold on a phone: bring them into view.
+  // The reveal lands below the fold on a phone: bring it into view.
   useEffect(() => {
     if (step === "ask" || !after.current) return;
     const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -83,21 +70,21 @@ export default function CaseStep({
       </h2>
       <p className="mt-5 max-w-2xl text-pretty text-[1.1875rem] leading-[1.5] tracking-[-0.016em] text-cream sm:text-[1.375rem]">{item.story}</p>
 
-      <figure className="mt-7 border border-line-dark bg-surface px-5 py-5 shadow-[var(--shadow-card)] sm:px-7 sm:py-6">
-        <p className="eyebrow text-subtle">The policy says</p>
-        <blockquote className="mt-3 text-pretty text-[1.1875rem] leading-[1.6] tracking-[-0.016em] text-cream sm:text-[1.375rem]">
-          &ldquo;<Wording text={item.clause} />&rdquo;
-        </blockquote>
-      </figure>
-      <p className="mt-4 flex flex-wrap items-baseline gap-x-2.5 text-[1.0625rem] text-cream">
-        <span className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-cream-muted">
-          <span aria-hidden className="mr-2 inline-block h-2 w-2 bg-signal" />
-          The catch
-        </span>
-        <span className="font-medium">{item.crux}</span>
-      </p>
+      {/* The sketch, with the policy laid beside it */}
+      <div className="mt-8 grid items-center md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+        <Image
+          src={item.art.src}
+          alt={item.art.alt}
+          width={1024}
+          height={768}
+          unoptimized
+          priority
+          className="h-auto w-full select-none"
+        />
+        <PolicyPaper clause={item.clause} className="relative z-10 -mt-6 ml-auto w-[94%] md:-ml-10 md:mt-0 md:w-auto" />
+      </div>
 
-      <div className="mt-9 sm:mt-10">
+      <div className="mt-10 sm:mt-12">
         <h3 className="font-display text-[2rem] leading-none tracking-[-0.035em] text-cream sm:text-[2.5rem]">Does it pay?</h3>
         <div role="radiogroup" aria-label="Does it pay?" className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
           {VERDICTS.map((v) => {
@@ -143,7 +130,6 @@ export default function CaseStep({
       </div>
 
       <div ref={after} className="scroll-mt-8">
-        {step === "who" ? who : null}
         {step === "reveal" && answer ? <CaseReveal answer={answer} tally={tally} role={role} live={live} onNext={onNext} isLast={isLast} /> : null}
       </div>
     </article>

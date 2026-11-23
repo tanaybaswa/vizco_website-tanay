@@ -36,11 +36,16 @@ export type CaseItem = {
   story: string;
   /** One line of policy wording, plain enough to read at a glance. The phrase that matters is [[marked]]. */
   clause: string;
-  /** The question the case turns on. */
+  /** The question the case turns on. Not shown for now; kept for the report. */
   crux: string;
   /** Where the facts come from. */
   basis: { label: string; source?: SourceKey };
+  art: Art;
 };
+
+/** A newspaper-sketch illustration from public/compass/art. Everyone in this world is a dog. */
+export type Art = { src: string; alt: string };
+const art = (name: string, alt: string): Art => ({ src: `/compass/art/${name}.webp`, alt });
 
 export type StanceItem = {
   kind: "stance";
@@ -49,6 +54,7 @@ export type StanceItem = {
   statement: string;
   /** +1 when agreeing means "fold AI into standard cover", -1 when it means "carve AI out". */
   pole: 1 | -1;
+  art: Art;
 };
 
 export type BonusItem = {
@@ -56,6 +62,7 @@ export type BonusItem = {
   id: string;
   topic: string;
   statement: string;
+  art: Art;
 };
 
 export type Item = CaseItem | StanceItem | BonusItem;
@@ -69,6 +76,7 @@ export const CASES: CaseItem[] = [
     clause: "We cover mistakes made by you, or by [[anyone you're responsible for]].",
     crux: "Is a chatbot “anyone”?",
     basis: { label: "Real case: Moffatt v. Air Canada, 2024", source: "moffatt" },
+    art: art("case-chatbot-promise", "A sad basset hound traveller shows a chatbot conversation on his phone to a smiling beagle airline agent at the check-in desk."),
   },
   {
     kind: "case",
@@ -78,6 +86,7 @@ export const CASES: CaseItem[] = [
     clause: "We don't cover injury [[arising out of generative AI]].",
     crux: "AI made the sign. Did the sign cause the fall?",
     basis: { label: "Raised on an industry panel, November 2026. Wording based on the standard AI exclusion", source: "moneyGeek" },
+    art: art("case-wet-floor-sign", "A dachshund shopper slips on a puddle in a supermarket aisle, apples flying, beside a wet-floor sign."),
   },
   {
     kind: "case",
@@ -87,6 +96,7 @@ export const CASES: CaseItem[] = [
     clause: "We cover money lost to [[a person impersonating]] your staff.",
     crux: "Is a deepfake “a person”?",
     basis: { label: "Real case: Hong Kong, 2024", source: "arup" },
+    art: art("case-deepfake-call", "A cocker spaniel finance worker at his desk stares at a video call of four identical-looking executives."),
   },
   {
     kind: "case",
@@ -96,6 +106,7 @@ export const CASES: CaseItem[] = [
     clause: "We don't cover [[any claim of discrimination]].",
     crux: "Written for the company's own hiring. Does it reach a tool it sells?",
     basis: { label: "Real case: Mobley v. Workday, 2025", source: "mobley" },
+    art: art("case-hiring-screen", "An older grey-muzzled labrador in a suit holds out his CV to an automated hiring kiosk, which pushes a slip back at him."),
   },
   {
     kind: "case",
@@ -105,6 +116,7 @@ export const CASES: CaseItem[] = [
     clause: "We don't cover any claim [[arising from the use of AI]].",
     crux: "AI invented the studies. A person didn't check. Which one caused the loss?",
     basis: { label: "Illustrative" },
+    art: art("case-unchecked-report", "A poodle consultant hands a thick report to a bulldog client; loose pages float up and dissolve into question marks."),
   },
   {
     kind: "case",
@@ -114,16 +126,17 @@ export const CASES: CaseItem[] = [
     clause: "We cover money lost [[directly]] to fraud on your computer systems.",
     crux: "The bot chose to pay. Is that “directly” fraud?",
     basis: { label: "Illustrative" },
+    art: art("case-refund-agent", "Two sly whippets in hoodies huddle over a laptop while a cheerful service robot pays out a stream of receipts and coins."),
   },
 ];
 
 export const STANCES: StanceItem[] = [
-  { kind: "stance", id: "silence-pays", topic: "Silence", statement: "If a policy is silent on AI, it should pay.", pole: 1 },
-  { kind: "stance", id: "free-to-exclude", topic: "Freedom to exclude", statement: "Insurers should be free to exclude anything AI touches.", pole: -1 },
-  { kind: "stance", id: "own-cover", topic: "Its own cover", statement: "AI needs its own insurance, separate from everything else.", pole: -1 },
-  { kind: "stance", id: "cause-not-link", topic: "Cause, not connection", statement: "An AI exclusion should only bite when AI caused the loss.", pole: 1 },
-  { kind: "stance", id: "never-planned", topic: "Unplanned risk", statement: "If insurers never planned for AI, they shouldn't have to pay for it.", pole: -1 },
-  { kind: "stance", id: "just-a-tool", topic: "Just a tool", statement: "AI is just a tool. Insure it like any other.", pole: 1 },
+  { kind: "stance", id: "silence-pays", topic: "Silence", statement: "If a policy is silent on AI, it should pay.", pole: 1, art: art("take-silence-pays", "A beagle clerk holds open a policy binder with completely blank pages, eyeing a small robot on the desk.") },
+  { kind: "stance", id: "free-to-exclude", topic: "Freedom to exclude", statement: "Insurers should be free to exclude anything AI touches.", pole: -1, art: art("take-free-to-exclude", "A stern bulldog insurer raises a giant rubber stamp over a small worried robot.") },
+  { kind: "stance", id: "own-cover", topic: "Its own cover", statement: "AI needs its own insurance, separate from everything else.", pole: -1, art: art("take-own-cover", "A border terrier clerk files a small robot into its own drawer of a wooden filing cabinet.") },
+  { kind: "stance", id: "cause-not-link", topic: "Cause, not connection", statement: "An AI exclusion should only bite when AI caused the loss.", pole: 1, art: art("take-cause-not-link", "The VizCo wolfhound, in a suit, studies a row of fallen dominoes through a magnifying glass to find the first one that fell.") },
+  { kind: "stance", id: "never-planned", topic: "Unplanned risk", statement: "If insurers never planned for AI, they shouldn't have to pay for it.", pole: -1, art: art("take-never-planned", "A dachshund actuary looks up in surprise from his ledger as a robot walks into his office.") },
+  { kind: "stance", id: "just-a-tool", topic: "Just a tool", statement: "AI is just a tool. Insure it like any other.", pole: 1, art: art("take-just-a-tool", "A cheerful sheepdog carpenter holds a toolbox with a hammer, a wrench and a small folded robot.") },
 ];
 
 export const BONUS: BonusItem = {
@@ -131,6 +144,7 @@ export const BONUS: BonusItem = {
   id: "say-it-clearly",
   topic: "Clarity",
   statement: "Every policy should say clearly whether it covers AI.",
+  art: art("take-say-it-clearly", "The VizCo wolfhound, in a suit, holds up a single clear sheet of paper and points to it reassuringly."),
 };
 
 /** Play order: a case, then a quick statement, so the pace keeps moving. */
@@ -192,6 +206,7 @@ export type Archetype = {
   me: string;
   says: string;
   traits: string[];
+  art: Art;
 };
 
 export const ARCHETYPES: Record<ArchetypeId, Archetype> = {
@@ -204,6 +219,7 @@ export const ARCHETYPES: Record<ArchetypeId, Archetype> = {
     me: "I think AI losses are falling through today's wording, and standard cover should close the gap.",
     says: "Show me where it says AI.",
     traits: ["Reads exclusions as written", "Wants policies to name AI and cover it", "Expects buyers to be caught out"],
+    art: art("type-gap-hunter", "A Jack Russell terrier detective in a trench coat inspects a torn document through a magnifying glass."),
   },
   "steady-hand": {
     id: "steady-hand",
@@ -214,6 +230,7 @@ export const ARCHETYPES: Record<ArchetypeId, Archetype> = {
     me: "To me, AI is one more way things go wrong. Today's policies respond, and that's how it should stay.",
     says: "We said the same about the internet.",
     traits: ["Reads cover by the loss, not the technology", "Sees no need for special AI rules", "Calm about the hype"],
+    art: art("type-steady-hand", "A calm old golden retriever in a cardigan sits in a leather armchair with a cup of tea."),
   },
   watchdog: {
     id: "watchdog",
@@ -224,6 +241,7 @@ export const ARCHETYPES: Record<ArchetypeId, Archetype> = {
     me: "I think today's policies are quietly paying for AI risk nobody planned for, and it needs fixing before a big loss fixes it for everyone.",
     says: "Silent cover is still cover.",
     traits: ["Sees silent AI on every policy", "Wants AI written out or planned for", "Has seen this film before"],
+    art: art("type-watchdog", "An alert German shepherd in a security uniform and cap stands watch with a clipboard."),
   },
   architect: {
     id: "architect",
@@ -234,6 +252,7 @@ export const ARCHETYPES: Record<ArchetypeId, Archetype> = {
     me: "I read today's wording as leaving AI out, and I think that's right: AI is a new risk that deserves cover built for it.",
     says: "New risk, new policy.",
     traits: ["Reads AI exclusions as doing their job", "Wants AI cover built from scratch", "Thinks bundling hides the risk"],
+    art: art("type-architect", "A border collie architect, pencil in mouth, drafts a blueprint with a long ruler."),
   },
   arbiter: {
     id: "arbiter",
@@ -244,6 +263,7 @@ export const ARCHETYPES: Record<ArchetypeId, Archetype> = {
     me: "I weigh every word and won't call it early. AI cover turns on the facts and the wording, case by case.",
     says: "It depends. Send me the full policy.",
     traits: ["Sees both sides of most calls", "Holds positions loosely", "The person everyone asks"],
+    art: art("type-arbiter", "The VizCo wolfhound, in a dark suit, holds a set of perfectly balanced scales."),
   },
 };
 

@@ -1,17 +1,17 @@
 "use client";
 
-import { useState, type FormEvent, type Ref } from "react";
+import { useRef, useState, type FormEvent, type Ref } from "react";
 import { SwapArrow } from "@/components/ui";
-import { COMPASS } from "@/content/compass";
+import { COMPASS, REGIONS, ROLES, type RegionId, type RoleId } from "@/content/compass";
 
 export type Details = { email: string; name: string; title: string; take: string; credit: boolean };
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /**
- * The last step, at peak curiosity: where to send the full results. Asked before the
- * reveal because that's when people most want to finish, but it can always be skipped.
- * `card` is the compact version on the result screen, for people who skipped.
+ * The last step, at peak curiosity: who's calling (one tap, needed to split results by role)
+ * and where to send the full results. Asked once, at the end, never mid-game. The email can
+ * be skipped; the role can't. `card` is the compact email-only version on the result screen.
  */
 export default function DetailsStep({
   onSubmit,
@@ -20,6 +20,10 @@ export default function DetailsStep({
   busy = false,
   error = "",
   headingRef,
+  role = null,
+  region = null,
+  onRole,
+  onRegion,
 }: {
   onSubmit: (d: Details) => void;
   onSkip?: () => void;
@@ -27,14 +31,30 @@ export default function DetailsStep({
   busy?: boolean;
   error?: string;
   headingRef?: Ref<HTMLHeadingElement>;
+  role?: RoleId | null;
+  region?: RegionId | null;
+  onRole?: (r: RoleId) => void;
+  onRegion?: (r: RegionId | null) => void;
 }) {
   const [invalid, setInvalid] = useState(false);
+  const [needRole, setNeedRole] = useState(false);
+  const roles = useRef<HTMLFieldSetElement>(null);
   const step = variant === "step";
+  const askRole = step && !!onRole;
+
+  /** The role comes first. Without it, point at the chips instead of moving on. */
+  const roleMissing = () => {
+    if (!askRole || role) return false;
+    setNeedRole(true);
+    roles.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    return true;
+  };
 
   function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     if (f.get("website")) return; // hidden from people; bots fill it in
+    if (roleMissing()) return;
     const email = String(f.get("email") ?? "").trim();
     if (!EMAIL.test(email)) {
       setInvalid(true);
@@ -65,14 +85,70 @@ export default function DetailsStep({
         tabIndex={-1}
         className={`font-display text-balance tracking-[-0.038em] text-cream outline-none ${step ? "mt-6 text-[2.25rem] leading-[1.04] sm:text-[3.25rem]" : "mt-4 text-[1.75rem] leading-tight sm:text-[2.25rem]"}`}
       >
-        Where should we send the results?
+        {step ? "One last thing." : "Where should we send the results?"}
       </h2>
       <p className="mt-4 max-w-xl text-pretty text-base leading-relaxed text-cream-muted sm:text-[1.0625rem]">
-        The full survey results go to you before we publish them, with how every role called every case. The first {COMPASS.founding} get
-        credited in the report.
+        {step ? "Tell us what you do, so we can split the results by role. Leave your work email and the full results come to you before we publish them. " : "The full survey results go to you before we publish them, with how every role called every case. "}
+        The first {COMPASS.founding} get credited in the report.
       </p>
 
       <form onSubmit={submit} noValidate className="mt-8 grid max-w-2xl gap-4">
+        {askRole ? (
+          <fieldset ref={roles} className="mb-4 grid gap-3">
+            <legend className="font-display mb-3 text-[1.375rem] leading-tight tracking-[-0.025em] text-cream">What do you do?</legend>
+            <div role="radiogroup" aria-label="What do you do?" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {ROLES.map((r) => {
+                const on = role === r.id;
+                return (
+                  <button
+                    key={r.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={on}
+                    onClick={() => {
+                      onRole?.(r.id);
+                      setNeedRole(false);
+                    }}
+                    className={`flex min-h-12 items-center justify-between gap-2 border px-3.5 py-3 text-left text-[0.9375rem] font-medium tracking-[-0.01em] transition-[background-color,border-color,color] duration-200 ${
+                      on ? "border-cream bg-cream text-ink" : `bg-surface text-cream hover:border-cream ${needRole ? "border-disagree-2/60" : "border-line-strong"}`
+                    }`}
+                  >
+                    {r.label}
+                    {on ? <span aria-hidden className="h-2 w-2 shrink-0 bg-signal" /> : null}
+                  </button>
+                );
+              })}
+            </div>
+            {needRole ? (
+              <p role="alert" className="text-[0.875rem] text-disagree-2">
+                Pick one first. It&apos;s how we split the results by role.
+              </p>
+            ) : null}
+            <p className="eyebrow mt-3 text-subtle">Where you work &middot; optional</p>
+            <div role="radiogroup" aria-label="Where you work" className="flex flex-wrap gap-2">
+              {REGIONS.map((r) => {
+                const on = region === r.id;
+                return (
+                  <button
+                    key={r.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={on}
+                    onClick={() => onRegion?.(on ? null : r.id)}
+                    className={`h-10 border px-3.5 text-sm transition-[background-color,border-color,color] duration-200 ${
+                      on ? "border-cream bg-cream text-ink" : "border-line-strong bg-surface text-cream-muted hover:border-cream hover:text-cream"
+                    }`}
+                  >
+                    {r.label}
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+        ) : null}
+        {askRole ? (
+          <p className="font-display text-[1.375rem] leading-tight tracking-[-0.025em] text-cream">Where should we send the results?</p>
+        ) : null}
         <label className="grid gap-2">
           <span className={label}>Work email</span>
           <input
@@ -127,12 +203,16 @@ export default function DetailsStep({
             disabled={busy}
             className="group relative inline-flex h-[3.25rem] items-center justify-center gap-2.5 overflow-hidden bg-cream px-7 text-base font-medium text-ink transition-[background-color,opacity] duration-300 hover:bg-accent-deep disabled:opacity-60"
           >
-            {busy ? "Saving…" : step ? "Show my result" : "Send me the results"}
+            {busy ? "Saving…" : step ? "Send them, and show my result" : "Send me the results"}
             <SwapArrow />
           </button>
           {onSkip ? (
-            <button type="button" onClick={onSkip} className="group h-11 text-[0.9375rem] text-cream-muted transition-colors hover:text-cream">
-              <span className="link-draw pb-px">Skip, just show my result</span>
+            <button
+              type="button"
+              onClick={() => !roleMissing() && onSkip()}
+              className="group h-11 text-[0.9375rem] text-cream-muted transition-colors hover:text-cream"
+            >
+              <span className="link-draw pb-px">Skip the email, just show my result</span>
             </button>
           ) : null}
         </div>

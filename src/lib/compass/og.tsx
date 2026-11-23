@@ -26,6 +26,10 @@ const QUAD: Record<Exclude<ArchetypeId, "arbiter">, { left: number; top: number 
   architect: { left: 0, top: 1 },
 };
 
+/** A type's portrait as a data URL (the image renderer reads JPEG, not WebP). */
+const portrait = async (id: ArchetypeId) =>
+  `data:image/jpeg;base64,${(await readFile(join(process.cwd(), "src/lib/compass/art", `type-${id}.jpg`))).toString("base64")}`;
+
 const fonts = async () => {
   const dir = join(process.cwd(), "src/lib/compass/fonts");
   const [regular, semibold] = await Promise.all([readFile(join(dir, "Inter-400.ttf")), readFile(join(dir, "Inter-600.ttf"))]);
@@ -35,8 +39,8 @@ const fonts = async () => {
   ];
 };
 
-function Map({ highlight, pos }: { highlight?: ArchetypeId; pos?: Position | null }) {
-  const S = 400;
+function Map({ highlight, pos, size = 400, labels = true }: { highlight?: ArchetypeId; pos?: Position | null; size?: number; labels?: boolean }) {
+  const S = size;
   const q = highlight && highlight !== "arbiter" ? QUAD[highlight] : null;
   // The player's own dot when we have it; otherwise the middle of their quadrant.
   const dot = pos
@@ -47,7 +51,7 @@ function Map({ highlight, pos }: { highlight?: ArchetypeId; pos?: Position | nul
   const axis = { fontSize: 15, letterSpacing: 2.4, color: MUTED, display: "flex" };
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-      <div style={axis}>{`${AXES.y.pos.toUpperCase()} ↑`}</div>
+      {labels ? <div style={axis}>{`${AXES.y.pos.toUpperCase()} ↑`}</div> : null}
       <div style={{ display: "flex", position: "relative", width: S, height: S, background: "#ffffff", border: `2px solid ${LINE}` }}>
         {q ? <div style={{ display: "flex", position: "absolute", left: q.left * (S / 2), top: q.top * (S / 2), width: S / 2, height: S / 2, background: TINT }} /> : null}
         <div style={{ display: "flex", position: "absolute", left: S / 2 - 2, top: 0, width: 3, height: S - 4, background: INK }} />
@@ -56,11 +60,11 @@ function Map({ highlight, pos }: { highlight?: ArchetypeId; pos?: Position | nul
           style={{
             display: "flex",
             position: "absolute",
-            left: S / 2 - 48,
-            top: S / 2 - 48,
-            width: 96,
-            height: 96,
-            borderRadius: 48,
+            left: S / 2 - S * 0.12,
+            top: S / 2 - S * 0.12,
+            width: S * 0.24,
+            height: S * 0.24,
+            borderRadius: S * 0.12,
             border: `2px dashed ${MUTED}`,
             background: highlight === "arbiter" ? TINT : "transparent",
           }}
@@ -69,16 +73,16 @@ function Map({ highlight, pos }: { highlight?: ArchetypeId; pos?: Position | nul
           style={{
             display: "flex",
             position: "absolute",
-            left: dot.x - 16,
-            top: dot.y - 16,
-            width: 32,
-            height: 32,
+            left: dot.x - Math.max(10, S * 0.04),
+            top: dot.y - Math.max(10, S * 0.04),
+            width: Math.max(20, S * 0.08),
+            height: Math.max(20, S * 0.08),
             background: SIGNAL,
-            border: "4px solid #ffffff",
+            border: "3px solid #ffffff",
           }}
         />
       </div>
-      <div style={axis}>{`↓ ${AXES.y.neg.toUpperCase()}`}</div>
+      {labels ? <div style={axis}>{`↓ ${AXES.y.neg.toUpperCase()}`}</div> : null}
     </div>
   );
 }
@@ -95,6 +99,7 @@ function Block({ text, size }: { text: string; size: number }) {
 
 export async function compassImage(id?: ArchetypeId, pos?: Position | null, headers?: Record<string, string>) {
   const a = id ? ARCHETYPES[id] : null;
+  const art = id ? await portrait(id) : null;
   const article = a && /^[aeiou]/i.test(a.bare) ? "an" : "a";
 
   const headline = a ? (
@@ -133,9 +138,20 @@ export async function compassImage(id?: ArchetypeId, pos?: Position | null, head
             <div style={{ display: "flex", color: MUTED }}>vizco.co/compass</div>
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <Map highlight={id} pos={pos} />
-        </div>
+        {a && art ? (
+          // The type's portrait, with a small map of the player's own dot tucked into the corner.
+          <div style={{ display: "flex", position: "relative", width: 470, height: 518 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={art} width={470} height={470} alt="" style={{ position: "absolute", left: 0, top: 0 }} />
+            <div style={{ display: "flex", position: "absolute", right: -8, bottom: 0, padding: 8, background: PAPER }}>
+              <Map highlight={id} pos={pos} size={168} labels={false} />
+            </div>
+          </div>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <Map highlight={id} pos={pos} />
+          </div>
+        )}
       </div>
     ),
     { ...OG_SIZE, fonts: await fonts(), headers },

@@ -40,8 +40,8 @@ npm run build      # production build
 | `src/lib/seo.ts`, `src/components/JsonLd.tsx` | Per-page metadata helper and structured data |
 | `public/llms.txt` | Plain-text summary for AI answer engines |
 | `public/investors/` | Investor logos (black on transparent) |
-| `docs/` | How the hero portrait (`hero-portrait.md`) and the favicon (`favicon.md`) were made, and the AI Cover Compass plan (`ai-cover-compass.md`) |
-| `design/` | Source art and build scripts for those images. Not served; `public/` and `src/app/` hold the generated files |
+| `docs/` | How the hero portrait (`hero-portrait.md`) and the favicon (`favicon.md`) were made, and the AI Cover Compass plan, including how its art was made (`ai-cover-compass.md`) |
+| `design/` | Source art and build scripts for those images, and the Compass sketches with their prompts (`design/compass/`). Not served; `public/` and `src/app/` hold the generated files |
 
 ## Design system
 

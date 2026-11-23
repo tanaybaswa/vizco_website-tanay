@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type Ref } from "react";
+import Image from "next/image";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { SwapArrow } from "@/components/ui";
 import { TONE } from "@/components/compass/tones";
@@ -80,16 +81,30 @@ export default function StanceStep({
           </>
         )}
       </p>
-      <h2
-        ref={headingRef}
-        tabIndex={-1}
-        className="font-display mt-6 max-w-[16em] text-balance text-[2.25rem] leading-[1.05] tracking-[-0.038em] text-cream outline-none sm:mt-8 sm:text-[3.5rem]"
-      >
-        &ldquo;{item.statement}&rdquo;
-      </h2>
-      <p className="mt-5 text-[0.9375rem] text-cream-muted sm:text-base">
-        {bonus ? "Not scored. It goes straight into the report." : "Agree or disagree? No fence to sit on."}
-      </p>
+      {/* The sketch, with the statement beside it */}
+      <div className="mt-6 grid items-center gap-6 sm:mt-8 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:gap-10">
+        <Image
+          src={item.art.src}
+          alt={item.art.alt}
+          width={1024}
+          height={1024}
+          unoptimized
+          priority
+          className="mx-auto h-auto w-full max-w-[17rem] select-none md:max-w-none"
+        />
+        <div>
+          <h2
+            ref={headingRef}
+            tabIndex={-1}
+            className="font-display text-balance text-[2.25rem] leading-[1.05] tracking-[-0.038em] text-cream outline-none sm:text-[3.25rem]"
+          >
+            &ldquo;{item.statement}&rdquo;
+          </h2>
+          <p className="mt-5 text-[0.9375rem] text-cream-muted sm:text-base">
+            {bonus ? "Not scored. It goes straight into the report." : "Agree or disagree? No fence to sit on."}
+          </p>
+        </div>
+      </div>
 
       <div role="radiogroup" aria-label="Agree or disagree?" className="mt-8 grid grid-cols-2 gap-2 sm:mt-10 sm:grid-cols-4 sm:gap-3">
         {AGREE.map((a) => {

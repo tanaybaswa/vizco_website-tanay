@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import CompassChart from "@/components/compass/CompassChart";
@@ -63,7 +64,8 @@ export default async function SharedResult({ params, searchParams }: { params: P
           <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] lg:items-center lg:gap-16">
             <div>
               <Label live>{code ? "You've been challenged" : `${COMPASS.short} · A shared result`}</Label>
-              <h1 className="wipe font-display t-h1 anim-in mt-8 text-balance text-cream sm:mt-10 [&_.block-mark]:inline-block [&_.block-mark]:leading-[1.06]">
+              <Image src={a.art.src} alt={a.art.alt} width={1024} height={1024} unoptimized priority className="mt-6 h-auto w-full max-w-[16rem] select-none" />
+              <h1 className="wipe font-display t-h1 anim-in mt-2 text-balance text-cream [&_.block-mark]:inline-block [&_.block-mark]:leading-[1.06]">
                 Someone you know is {/^[aeiou]/i.test(a.bare) ? "an" : "a"} <span className="block-mark">{a.bare}.</span>
               </h1>
               <p className="t-lead mt-8 max-w-[34rem] text-pretty text-cream-muted">{a.line}</p>

@@ -1,6 +1,6 @@
 # The AI Cover Compass: concept, experience and build
 
-23 Nov 2026 · @Tanay. Replaces "Covered? (working title)" of 20 Nov 2026. Revised after the first review of the built MVP.
+23 Nov 2026 · @Tanay. Replaces "Covered? (working title)" of 20 Nov 2026. Revised after two reviews of the built MVP.
 
 **Status:** built and live on the branch preview at `/compass` (branch `feature/gracious-cerf-j473bz`). It needs a free Redis database and a merge to go live; see [To go live](#to-go-live).
 
@@ -26,6 +26,10 @@ The insight from the first plan still holds: **if insurance professionals can't 
 | Answer colours | Black and white | **Red to green** for Strongly disagree to Strongly agree; green, amber, red for Yes, Arguable, No; always with an icon and a label | Instantly legible, and colour is never the only signal |
 | Email | An optional Founding form at the very end | **A last step before the result:** work email, then optional name, job title and a one-line take on AI cover. Skippable | Asked at peak curiosity, where it converts best |
 | Overall results | A breakdown of every type on the result screen | **Deferred.** "The full results come to you by email, and we'll publish them here" | Results become an event of their own: a second wave of attention |
+| Look | Type and tiles only | **A newspaper-sketch world where everyone is a dog**, clothed and doing real jobs, like the hero. Every case and hot take has its own sketch; every type has a portrait. The wolfhound only ever appears in a trustworthy role | Nobody forgets a survey drawn like this. That's the purple cow |
+| The policy | A card with the wording | **Always the same piece of paper**, beside the sketch: a turned specimen page with serif wording, the key phrase in the black block, and a folded corner | One consistent object people learn to read in a second |
+| "The catch" | A one-line crux under each case | **Removed for now** (kept in the content for the report) | Fewer words, more room for the reader's own view |
+| Role question | After the first call | **At the end**, with the email, in one last step | Nothing interrupts the game |
 | Sharing | LinkedIn and copy | **LinkedIn, X, WhatsApp, Teams, email, copy link, copy post, and the phone's share sheet.** Each share carries a personal card with your own dot, and doubles as a challenge | See the next section |
 
 ## Built for 10,000 players: how it spreads by itself
@@ -68,11 +72,10 @@ The map is the framework: it separates what people think policies **do** from wh
 flowchart LR
   A["A colleague's link<br/>'I'm a Watchdog'"] --> B["Landing<br/>Challenge banner, live map"]
   B --> C["Case<br/>Does it pay?"]
-  C --> D["Once: what do you do?"]
-  D --> E["The split<br/>How everyone called it"]
+  C --> E["The split<br/>How everyone called it"]
   E --> F["Hot take<br/>Agree or disagree"]
   F -- "x6 cases, x6 hot takes" --> C
-  F --> G["Last step<br/>Where to send the results"]
+  F --> G["Last step<br/>Your role, where to send results"]
   G --> H["Your type, your dot, you vs them"]
   H --> I["Share and challenge"]
   I -.-> A
@@ -82,14 +85,13 @@ flowchart LR
 | --- | --- | --- | --- | --- |
 | 1 | **The link** | A colleague's post: a card with their type and their own dot | "Which one am I? Would I land near them?" | Personal cards; the shared page says "You've been challenged" and "Take the challenge" |
 | 2 | **Landing** | "Where do you stand on AI cover?", a challenge banner if they came from a link, one button, a live counter, the most divisive case so far, the map with a drifting "YOU?" | "This is quick, and people are arguing about it" | One action. Real numbers or none |
-| 3 | **A case** | Inside the site, nav visible. A two-line story, one line of policy wording with the key phrase in the black block, "The catch" in one question | "I know this. I have a view." | Nothing to wade through. Real cases sourced in one small line |
+| 3 | **A case** | Inside the site, nav visible. A two-line story; a newspaper sketch of it on the left (everyone's a dog); the policy as a turned page of wording on the right, key phrase in the black block | "I know this. And I want to know what everyone else says." | One consistent layout for every case. Real cases sourced in one small line |
 | 4 | **The call** | Three coloured tiles: green Yes, amber Arguable, red No | Decisive | Colour, icon and label together. Keys 1, 2, 3 on desktop |
-| 5 | **"What do you do?"** | After the first call only: role chips, optional region | A fair trade | Asked once, after commitment, before the reward |
 | 6 | **The split** | "You're with the 62%." or "Bold call. Only 18% agree with you.", coloured bars, a split score, how their own role called it | Surprise, sometimes vindication | Vote first, crowd second. No house view |
-| 7 | **A hot take** | A short, quotable statement; four coloured tiles from red Strongly disagree to green Strongly agree, with thumbs | Momentum | One tap, a glance at the four-colour split, then it moves on by itself |
-| 8 | **Last step** | "Where should we send the results?" Work email; optional name, job title, one-line take; a checkbox for credit; "Skip, just show my result" | "Of course, I want the results" | Asked at peak curiosity, never forced. Returning players who already gave an email skip it |
+| 7 | **A hot take** | A sketch beside a short, quotable statement; four coloured tiles from red Strongly disagree to green Strongly agree, with thumbs | Momentum | One tap, a glance at the four-colour split, then it moves on by itself |
+| 8 | **Last step** | "One last thing." What do you do (one tap, required), where you work (optional), then where to send the results: work email, optional name, job title, one-line take | "Of course, I want the results" | Asked once, at peak curiosity. The email can be skipped; the role can't, because it's what makes the data useful |
 | 9 | **Plotting** | Crosshairs and a pulsing square | Anticipation | 1.9 seconds while the run saves |
-| 10 | **Your type** | "You're a **Gap Hunter.**" wipes in; the map draws; the crowd fades in; your dot drops; role averages appear | "That's me" | The brand's own black-block reveal |
+| 10 | **Your type** | The type's portrait (a terrier detective for the Gap Hunter), then "You're a **Gap Hunter.**" wipes in; the map draws; the crowd fades in; your dot drops | "That's me" | A character worth posting, and the brand's own black-block reveal |
 | 11 | **Worth posting** | How rare you are; your boldest call; what your role tends to be; if challenged, "You agree on 7 of 12 calls" with both dots and the case you split on | Pride, curiosity, a little rivalry | Each line is a ready-made talking point |
 | 12 | **Share and challenge** | "Who do you know that would land somewhere else?" LinkedIn, X, WhatsApp, Teams, email, copy link, copy post, more; a preview of their personal card | "I have to send this to Sam" | Five seconds to share; the link is the challenge |
 | 13 | **The results** | "The full results are coming to you", or a compact email form if they skipped | Anticipation for the drop | The results are a second event, not a footnote |
@@ -131,6 +133,20 @@ Six hot takes, half phrased each way to avoid "agree with everything" bias:
 Plus one unscored question for the report: *Every policy should say clearly whether it covers AI.*
 
 All content lives in `src/content/compass.ts`. Editing a scored item changes what its votes mean, so bump `COMPASS.version` (now `v2`); votes are kept under the version they were cast on.
+
+## The art
+
+Every case, hot take and type has a sketch in the same voice: a renowned newspaper sketch artist's pen and ink, in a world where everyone is a dog in real clothes doing a real job. The VizCo wolfhound appears only in trustworthy roles: studying the dominoes to find the real cause, holding up a clear policy, holding the scales as the Arbiter.
+
+| Set | Images | Used in |
+| --- | --- | --- |
+| Cases | 6 scenes, 4:3 | Left of the policy paper on each case |
+| Hot takes | 6 vignettes plus the bonus, square | Beside each statement |
+| Types | 5 portraits, square | The result, the five types on the landing, shared pages, and every share card |
+
+- **How they were made:** FLUX.2 [dev] on Cloudflare Workers AI, with the hero wolfhound as a reference image for his scenes so he stays the same character. Prompts are in `design/compass/prompts.py`; the untouched outputs are in `design/compass/`.
+- **Finishing:** tinted to the page's paper colour with black ink, so they sit on the page like the hero. Garbled lettering on two images was painted out by hand. Site files are in `public/compass/art/`; JPEG copies of the type portraits for share cards are in `src/lib/compass/art/`.
+- **To redo first:** the refund-bot scene reads as two huddled fraudsters, but one head overlaps the other. Regenerate it once more Workers AI capacity is available (the free tier allows a small number of images a day).
 
 ## How a type is worked out
 

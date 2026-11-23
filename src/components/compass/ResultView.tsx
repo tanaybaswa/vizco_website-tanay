@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, type Ref } from "react";
+import Image from "next/image";
 import { Check, RotateCcw } from "lucide-react";
 import { SwapArrow } from "@/components/ui";
 import CompassChart from "@/components/compass/CompassChart";
@@ -121,10 +122,19 @@ export default function ResultView({
             Your position
             {result.player ? <span className="text-cream">Player #{result.player}</span> : null}
           </p>
+          <Image
+            src={arch.art.src}
+            alt={arch.art.alt}
+            width={1024}
+            height={1024}
+            unoptimized
+            priority
+            className="cmp-rise mt-6 h-auto w-full max-w-[17rem] select-none sm:max-w-[20rem]"
+          />
           <h2
             ref={headingRef}
             tabIndex={-1}
-            className="wipe font-display mt-6 text-balance text-[2.75rem] leading-[0.98] tracking-[-0.042em] text-cream outline-none sm:text-[4.5rem] [&_.block-mark]:inline-block [&_.block-mark]:leading-[1.04]"
+            className="wipe font-display mt-2 text-balance text-[2.75rem] leading-[0.98] tracking-[-0.042em] text-cream outline-none sm:text-[4.5rem] [&_.block-mark]:inline-block [&_.block-mark]:leading-[1.04]"
           >
             You&apos;re {article(arch.bare)} <span className="block-mark">{arch.bare}.</span>
           </h2>

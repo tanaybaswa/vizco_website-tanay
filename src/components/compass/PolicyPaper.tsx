@@ -1,0 +1,54 @@
+import { Fragment } from "react";
+import { Source_Serif_4 } from "next/font/google";
+
+/* A serif for wording, the way real policies are set. Loaded only where the paper appears. */
+const serif = Source_Serif_4({ subsets: ["latin"], weight: ["400", "600"], display: "swap" });
+
+/** The wording, with the phrase that matters set in the black block. Marked [[like this]]. */
+function Wording({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/\[\[(.+?)\]\]/g).map((part, i) =>
+        i % 2 ? (
+          <span key={i} className="block-mark">
+            {part}
+          </span>
+        ) : (
+          <Fragment key={i}>{part}</Fragment>
+        ),
+      )}
+    </>
+  );
+}
+
+/**
+ * The policy, always as the same piece of paper: a specimen page laid beside the sketch,
+ * slightly turned, with a folded corner. Every case renders its wording through this.
+ */
+export default function PolicyPaper({ clause, className = "" }: { clause: string; className?: string }) {
+  return (
+    <figure className={`relative rotate-[1.25deg] ${className}`}>
+      <div className="relative bg-[#fffefa] px-6 pb-6 pt-5 shadow-[var(--shadow-paper)] ring-1 ring-black/[0.06] sm:px-8 sm:pb-8 sm:pt-6">
+        {/* Folded corner */}
+        <span
+          aria-hidden
+          className="absolute right-0 top-0 h-7 w-7"
+          style={{ background: "linear-gradient(225deg, var(--ink) 50%, #e4e4df 50%)", boxShadow: "-2px 2px 3px rgba(10,10,10,0.08)" }}
+        />
+        <div className="flex items-center justify-between gap-4 border-b border-cream pb-3 pr-6">
+          <span className="font-mono text-[0.625rem] font-medium uppercase tracking-[0.18em] text-cream">The policy</span>
+          <span className="font-mono text-[0.5625rem] uppercase tracking-[0.18em] text-subtle">Specimen wording</span>
+        </div>
+        <blockquote className={`${serif.className} mt-5 text-pretty text-[1.25rem] leading-[1.55] text-cream sm:text-[1.4375rem]`}>
+          &ldquo;<Wording text={clause} />&rdquo;
+        </blockquote>
+        {/* The rest of the page, suggested */}
+        <div aria-hidden className="mt-6 space-y-2.5">
+          <span className="block h-[3px] w-[94%] bg-ink-3" />
+          <span className="block h-[3px] w-[86%] bg-ink-3" />
+          <span className="block h-[3px] w-[58%] bg-ink-3" />
+        </div>
+      </div>
+    </figure>
+  );
+}

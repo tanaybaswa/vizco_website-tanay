@@ -6,7 +6,6 @@ import { Container, Label, SwapArrow } from "@/components/ui";
 import CompassChart from "@/components/compass/CompassChart";
 import CaseStep from "@/components/compass/CaseStep";
 import StanceStep from "@/components/compass/StanceStep";
-import WhoSheet from "@/components/compass/WhoSheet";
 import DetailsStep, { type Details } from "@/components/compass/DetailsStep";
 import ResultView, { type EmailState, type Result } from "@/components/compass/ResultView";
 import { ARCHETYPES, CASES, COMPASS, ITEMS, VERDICTS, type Agree, type RegionId, type RoleId, type Verdict } from "@/content/compass";
@@ -22,7 +21,7 @@ import {
 import { loadSaved, save, type Saved } from "@/lib/compass/local";
 
 type Phase = "play" | "details" | "plotting" | "result";
-type CaseStepName = "ask" | "who" | "reveal";
+type CaseStepName = "ask" | "reveal";
 
 /** Other parts of the page start the game with this event, and hear whether it's open through STAGE_EVENT. */
 export const START_EVENT = "compass:start";
@@ -144,9 +143,9 @@ export default function CompassGame() {
     (v: Verdict) => {
       setAnswers((a) => ({ ...a, [item.id]: v }));
       navigator.vibrate?.(8);
-      setStep(role ? "reveal" : "who");
+      setStep("reveal");
     },
-    [item, role],
+    [item],
   );
 
   const voteStance = useCallback(
@@ -229,10 +228,17 @@ export default function CompassGame() {
       setStep("ask");
       return;
     }
-    // Already gave an email on an earlier run: straight to the result.
-    if (email.status === "saved") void finish(null);
+    // Already told us their role and email on an earlier run: straight to the result.
+    if (email.status === "saved" && role) void finish(null);
     else setPhase("details");
-  }, [email.status, finish, isLast]);
+  }, [email.status, finish, isLast, role]);
+
+  // Warm the next sketch so it's there the moment they move on.
+  useEffect(() => {
+    if (!open || phase !== "play") return;
+    const upcoming = ITEMS[index + 1];
+    if (upcoming) new window.Image().src = upcoming.art.src;
+  }, [open, phase, index]);
 
   // Keyboard play: 1 2 3 for a case, 1 to 4 for a statement, Enter to move on.
   useEffect(() => {
@@ -280,7 +286,7 @@ export default function CompassGame() {
         <ProgressBar index={index} total={ITEMS.length} phase={phase} onExit={exit} />
         {/* Tall enough that the footer never creeps up mid-game */}
         <div
-          className={`mx-auto min-h-[calc(100dvh-10rem)] w-full px-6 pb-24 pt-10 sm:px-8 sm:pt-14 lg:px-10 ${phase === "result" ? "max-w-7xl" : "max-w-3xl"}`}
+          className={`mx-auto min-h-[calc(100dvh-10rem)] w-full px-6 pb-24 pt-10 sm:px-8 sm:pt-14 lg:px-10 ${phase === "result" ? "max-w-7xl" : "max-w-5xl"}`}
         >
           {phase === "play" && item.kind === "case" ? (
             <CaseStep
@@ -295,18 +301,6 @@ export default function CompassGame() {
               onNext={next}
               isLast={isLast}
               headingRef={heading}
-              who={
-                <WhoSheet
-                  role={role}
-                  region={region}
-                  onRole={setRole}
-                  onRegion={setRegion}
-                  onDone={() => {
-                    persist({ role, region });
-                    setStep("reveal");
-                  }}
-                />
-              }
             />
           ) : null}
           {phase === "play" && item.kind !== "case" ? (
@@ -323,7 +317,23 @@ export default function CompassGame() {
               headingRef={heading}
             />
           ) : null}
-          {phase === "details" ? <DetailsStep headingRef={heading} onSubmit={(d) => void finish(d)} onSkip={() => void finish(null)} /> : null}
+          {phase === "details" ? (
+            <DetailsStep
+              headingRef={heading}
+              role={role}
+              region={region}
+              onRole={setRole}
+              onRegion={setRegion}
+              onSubmit={(d) => {
+                persist({ role, region });
+                void finish(d);
+              }}
+              onSkip={() => {
+                persist({ role, region });
+                void finish(null);
+              }}
+            />
+          ) : null}
           {phase === "plotting" ? <Plotting /> : null}
           {phase === "result" && result ? (
             <ResultView
@@ -460,7 +470,7 @@ function ProgressBar({ index, total, phase, onExit }: { index: number; total: nu
   const label = phase === "play" ? `${String(index + 1).padStart(2, "0")} / ${total}` : phase === "details" ? "Last step" : "Done";
   return (
     <div className="sticky top-[4.25rem] z-30 border-b border-line-dark bg-ink/90 backdrop-blur-xl backdrop-saturate-150">
-      <div className={`mx-auto flex h-14 w-full items-center gap-4 px-6 sm:gap-6 sm:px-8 lg:px-10 ${phase === "result" ? "max-w-7xl" : "max-w-3xl"}`}>
+      <div className={`mx-auto flex h-14 w-full items-center gap-4 px-6 sm:gap-6 sm:px-8 lg:px-10 ${phase === "result" ? "max-w-7xl" : "max-w-5xl"}`}>
         <button
           type="button"
           onClick={onExit}
