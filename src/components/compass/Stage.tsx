@@ -11,7 +11,7 @@ export function StageFooter({ status, children, wide = false }: { status?: React
   return (
     <div className="shrink-0 border-t border-line-dark bg-ink lg:border-t-0 lg:bg-transparent">
       <div
-        className={`mx-auto flex min-h-16 w-full items-center justify-between gap-4 px-5 py-2.5 sm:min-h-[4.5rem] sm:px-8 lg:mt-5 lg:min-h-0 lg:px-10 lg:py-0 ${
+        className={`mx-auto flex min-h-16 w-full items-center justify-between gap-4 px-5 py-2.5 sm:min-h-[4.5rem] sm:px-8 lg:mt-4 lg:min-h-0 lg:px-10 lg:py-0 ${
           wide ? "max-w-7xl" : "max-w-6xl lg:max-w-5xl"
         }`}
       >

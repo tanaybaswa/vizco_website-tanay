@@ -55,7 +55,7 @@ export default function StanceStep({
 
       {/* The sketch, with the statement beside it */}
       <div className="flex min-h-0 flex-col gap-3 md:grid md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:items-center md:gap-10">
-        <div className="relative min-h-0 flex-1 md:h-full lg:h-[clamp(11rem,30vh,17rem)] lg:flex-none short:lg:h-[clamp(10rem,28vh,14rem)]">
+        <div className="relative min-h-0 flex-1 md:h-full lg:h-[clamp(12rem,calc(100dvh-29rem),20rem)] lg:flex-none short:lg:h-[clamp(10rem,calc(100dvh-28rem),15rem)]">
           <Image src={item.art.src} alt={item.art.alt} fill unoptimized priority sizes="(min-width: 768px) 40vw, 100vw" className="select-none object-contain" />
         </div>
         <div className="shrink-0">

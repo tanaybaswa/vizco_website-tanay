@@ -143,6 +143,12 @@ body {
   outline-offset: 3px;
 }
 
+/* Headings the page focuses for screen readers (tabindex="-1") aren't controls: no ring */
+[tabindex="-1"]:focus,
+[tabindex="-1"]:focus-visible {
+  outline: none;
+}
+
 html {
   scrollbar-color: var(--line-strong) transparent;
   scrollbar-width: thin;

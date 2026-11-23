@@ -33,24 +33,24 @@ export default function CaseStep({
   const number = CASES.findIndex((c) => c.id === item.id) + 1;
 
   return (
-    <article className="cmp-step-in grid h-full grid-rows-[auto_minmax(0,1fr)_auto] gap-3 sm:gap-5 lg:h-auto lg:grid-rows-none lg:gap-5 short:gap-3 short:lg:gap-4">
+    <article className="cmp-step-in grid h-full grid-rows-[auto_minmax(0,1fr)_auto] gap-3 sm:gap-5 lg:h-auto lg:grid-rows-none lg:gap-4 short:gap-3 short:lg:gap-3">
       {/* The story */}
-      <header className="grid gap-x-10 gap-y-1.5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-end">
-        <div>
-          <p className="eyebrow text-cream-muted">
-            <span className="text-cream">Case {String(number).padStart(2, "0")}</span> / {String(CASES.length).padStart(2, "0")}
-          </p>
-          <h2
-            ref={headingRef}
-            tabIndex={-1}
-            className="font-display mt-1.5 text-balance text-[1.75rem] leading-[1.02] tracking-[-0.038em] text-cream outline-none sm:mt-2 sm:text-[2.5rem] lg:text-[2.5rem] short:text-[1.375rem] short:sm:text-[2.25rem] short:lg:text-[2.375rem]"
-          >
-            {item.title}
-          </h2>
-        </div>
-        <p className="text-pretty text-[0.9375rem] leading-snug tracking-[-0.012em] text-cream sm:text-lg lg:text-[1.1875rem] lg:leading-[1.45] short:text-[0.875rem] short:sm:text-base short:lg:text-[1.125rem]">
+      {/* Headline and standfirst on one left edge: case, title, then the story beneath it */}
+      <header className="lg:max-w-[46rem]">
+        <p className="eyebrow text-cream-muted">
+          <span className="text-cream">Case {String(number).padStart(2, "0")}</span> / {String(CASES.length).padStart(2, "0")}
+        </p>
+        <h2
+          ref={headingRef}
+          tabIndex={-1}
+          className="font-display mt-1.5 text-balance text-[1.75rem] leading-[1.02] tracking-[-0.038em] text-cream outline-none sm:mt-2 sm:text-[2.5rem] lg:text-[2.75rem] short:text-[1.375rem] short:sm:text-[2.25rem] short:lg:text-[2.375rem]"
+        >
+          {item.title}
+        </h2>
+        <p className="mt-1.5 text-pretty text-[0.9375rem] leading-snug tracking-[-0.012em] text-cream sm:mt-2 sm:text-lg lg:mt-3 lg:text-[1.1875rem] lg:leading-[1.45] short:text-[0.875rem] short:sm:text-base short:lg:mt-2 short:lg:text-[1.0625rem]">
           {item.story}{" "}
-          <span className="text-[0.75rem] text-subtle sm:text-[0.8125rem]">
+          {/* The source: inline on a phone to save a line, its own quiet line on a laptop */}
+          <span className="text-[0.75rem] text-subtle sm:text-[0.8125rem] lg:mt-1.5 lg:block">
             {item.basis.label}
             {item.basis.source ? <Cite s={item.basis.source} /> : null}
           </span>
@@ -58,9 +58,9 @@ export default function CaseStep({
       </header>
 
       {/* The sketch, with the policy laid beside it */}
-      <div className="flex min-h-0 flex-col md:grid md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:items-center">
+      <div className="flex min-h-0 flex-col md:grid md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:items-center lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
         {/* On a phone the paper overlaps the sketch's lower edge, so both keep their room */}
-        <div className="relative min-h-[6.5rem] flex-1 md:h-full md:min-h-0 lg:h-[clamp(11.5rem,30vh,18rem)] lg:flex-none short:min-h-[5rem] short:lg:h-[clamp(11rem,30vh,15rem)]">
+        <div className="relative min-h-[6.5rem] flex-1 md:h-full md:min-h-0 lg:h-[clamp(10rem,calc(100dvh-36.5rem),21rem)] lg:flex-none short:min-h-[5rem] short:lg:h-[clamp(10rem,calc(100dvh-33rem),15rem)]">
           <Image src={item.art.src} alt={item.art.alt} fill unoptimized priority sizes="(min-width: 768px) 55vw, 100vw" className="select-none object-contain object-top md:object-center" />
         </div>
         <PolicyPaper clause={item.clause} className="relative z-10 -mt-6 ml-auto mr-1 w-[90%] shrink-0 md:-ml-8 md:mr-0 md:mt-0 md:w-auto short:-mt-4" />
@@ -83,7 +83,7 @@ export default function CaseStep({
                 aria-checked={on}
                 aria-label={`${v.label}, ${v.tag}${share !== null ? `, ${share}% of players` : ""}`}
                 onClick={() => onVote(v.id)}
-                className={`group relative flex min-h-[4.5rem] flex-col justify-between gap-2 overflow-hidden border p-2.5 text-left short:min-h-[3.75rem] short:gap-1 short:py-2 transition-[background-color,border-color,color,box-shadow] duration-200 sm:min-h-[6.25rem] sm:gap-3 sm:p-4 lg:min-h-[5.5rem] short:sm:min-h-[5rem] ${
+                className={`group relative flex min-h-[4.5rem] flex-col justify-between gap-2 overflow-hidden border p-2.5 text-left short:min-h-[3.75rem] short:gap-1 short:py-2 transition-[background-color,border-color,color,box-shadow] duration-200 sm:min-h-[6.25rem] sm:gap-3 sm:p-4 lg:min-h-[5.25rem] short:sm:min-h-[5rem] ${
                   on ? `${t.solid} border-transparent text-white shadow-[var(--shadow-lift)]` : `${t.soft} ${t.line} text-cream hover:shadow-[var(--shadow-card)]`
                 }`}
               >

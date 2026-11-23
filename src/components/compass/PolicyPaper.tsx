@@ -50,12 +50,12 @@ export default function PolicyPaper({ clause, className = "" }: { clause: string
           <span className="font-mono text-[0.5625rem] uppercase tracking-[0.18em] text-subtle">Specimen wording</span>
         </div>
         <blockquote
-          className={`${policySerif.className} mt-2.5 text-pretty text-[1.0625rem] leading-[1.45] text-cream sm:mt-4 sm:text-[1.25rem] sm:leading-[1.5] lg:text-[1.375rem] short:text-[1rem] short:sm:text-[1.125rem]`}
+          className={`${policySerif.className} mt-2.5 text-pretty text-[1.0625rem] leading-[1.45] text-cream sm:mt-4 sm:text-[1.25rem] sm:leading-[1.5] lg:text-[1.25rem] xl:text-[1.375rem] short:text-[1rem] short:sm:text-[1.125rem]`}
         >
           &ldquo;<Wording text={clause} />&rdquo;
         </blockquote>
         {/* The rest of the page, suggested */}
-        <div aria-hidden className="mt-5 hidden space-y-2.5 sm:block short:hidden">
+        <div aria-hidden className="mt-5 hidden space-y-2.5 sm:block lg:hidden xl:block short:hidden">
           <span className="block h-[3px] w-[94%] bg-ink-3" />
           <span className="block h-[3px] w-[86%] bg-ink-3" />
           <span className="block h-[3px] w-[58%] bg-ink-3" />
