@@ -38,6 +38,8 @@ const halo = { paintOrder: "stroke", stroke: "var(--surface)", strokeWidth: 5, s
 
 export default function CompassChart({
   you,
+  youLabel = "YOU",
+  other = null,
   dots = [],
   centroids = [],
   highlight = null,
@@ -47,6 +49,10 @@ export default function CompassChart({
   className = "",
 }: {
   you?: Position | null;
+  /** The orange marker's tag. On a shared page it's the sharer, not the visitor. */
+  youLabel?: string;
+  /** A second player to compare with, e.g. the colleague who sent a challenge. */
+  other?: (Position & { label: string }) | null;
   dots?: Dot[];
   centroids?: { label: string; x: number; y: number }[];
   highlight?: ArchetypeId | null;
@@ -185,23 +191,25 @@ export default function CompassChart({
         </g>
       ))}
 
-      {/* You */}
-      {you ? <Marker at={you} label="YOU" className="cmp-you" /> : null}
+      {/* The colleague, then you on top */}
+      {other ? <Marker at={other} label={other.label} className="cmp-other" ink /> : null}
+      {you ? <Marker at={you} label={youLabel} className="cmp-you" /> : null}
       {ghost && !you ? <Marker at={ghostAt} label="YOU?" className="cmp-ghost" /> : null}
     </svg>
   );
 }
 
-function Marker({ at, label, className }: { at: Position; label: string; className: string }) {
+function Marker({ at, label, className, ink = false }: { at: Position; label: string; className: string; ink?: boolean }) {
   const w = label.length * 7.4 + 12;
+  const fill = ink ? "var(--cream)" : "var(--signal)";
   return (
     <g className={`cmp-move ${className}`} style={{ transform: `translate(${px(at.x)}px, ${py(at.y)}px)` }}>
       <g className="cmp-land">
-        <rect className="cmp-ping" x={-7} y={-7} width={14} height={14} fill="var(--signal)" />
-        <rect x={-7} y={-7} width={14} height={14} fill="var(--signal)" stroke="var(--surface)" strokeWidth={2} />
+        {ink ? null : <rect className="cmp-ping" x={-7} y={-7} width={14} height={14} fill={fill} />}
+        <rect x={-7} y={-7} width={14} height={14} fill={fill} stroke="var(--surface)" strokeWidth={2} />
         <g transform={`translate(${at.x > 0.45 ? -w - 12 : 12} -9)`}>
-          <rect width={w} height={18} fill="var(--cream)" />
-          <text x={6} y={12.5} className="font-mono" fontSize={10} letterSpacing="0.1em" fill="var(--ink)">
+          <rect width={w} height={18} fill={ink ? "var(--surface)" : "var(--cream)"} stroke={ink ? "var(--cream)" : "none"} />
+          <text x={6} y={12.5} className="font-mono" fontSize={10} letterSpacing="0.1em" fill={ink ? "var(--cream)" : "var(--ink)"}>
             {label}
           </text>
         </g>

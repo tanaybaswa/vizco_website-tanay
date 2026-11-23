@@ -5,8 +5,9 @@ import type { SourceKey } from "@/content/sources";
  *
  * Two questions place every player on the map:
  *   x: Do today's policies pay for AI losses? (six cases: Yes / Arguable / No)
- *   y: Should they? (six positions: Strongly disagree to Strongly agree)
+ *   y: Should they? (six statements: Strongly disagree to Strongly agree)
  *
+ * It's a survey, so there are no right answers and no house view on any case.
  * Content rules are the site's: no insurer names, no policy-type names, no figures.
  * Editing a scored item changes what its votes mean, so bump VERSION when you do;
  * votes are stored under the version they were cast on.
@@ -15,8 +16,8 @@ export const COMPASS = {
   name: "The AI Cover Compass",
   short: "AI Cover Compass",
   path: "/compass",
-  version: "v1",
-  /** The first players who join get credited in the first report. */
+  version: "v2",
+  /** The first players who leave their email get credited in the first report. */
   founding: 200,
 } as const;
 
@@ -24,23 +25,21 @@ export type Verdict = "yes" | "arguable" | "no";
 /** 0 strongly disagree, 1 disagree, 2 agree, 3 strongly agree. No neutral: take a side. */
 export type Agree = 0 | 1 | 2 | 3;
 
+/**
+ * A case is a story you could tell in one breath, one line of wording, and the question
+ * everyone argues about. Anything longer loses people on a phone.
+ */
 export type CaseItem = {
   kind: "case";
   id: string;
   title: string;
-  insured: string;
-  facts: string;
-  policy: string;
-  /** The wording. A defined term is marked [[like this]] and explained in `terms`. */
+  story: string;
+  /** One line of policy wording, plain enough to read at a glance. The phrase that matters is [[marked]]. */
   clause: string;
-  terms?: Record<string, string>;
-  /** Where the wording comes from. */
-  wording: { note: string; source?: SourceKey };
+  /** The question the case turns on. */
+  crux: string;
   /** Where the facts come from. */
   basis: { label: string; source?: SourceKey };
-  /** The crux, in one line, shown under the question. */
-  crux: string;
-  reading: { lean: Verdict; text: string };
 };
 
 export type StanceItem = {
@@ -61,128 +60,70 @@ export type BonusItem = {
 
 export type Item = CaseItem | StanceItem | BonusItem;
 
-const SPECIMEN = "Specimen wording, written by VizCo in the style of common market language. Not any insurer's policy.";
-
 export const CASES: CaseItem[] = [
   {
     kind: "case",
     id: "chatbot-promise",
     title: "The chatbot's promise",
-    insured: "An airline with a customer-service chatbot",
-    facts:
-      "The chatbot told a grieving customer they could claim a bereavement discount after booking. The airline's real terms said otherwise. A tribunal held the airline to its chatbot's answer.",
-    policy: "Covers the airline's liability for mistakes made serving customers.",
-    clause:
-      "We will pay loss arising from any negligent act, error, omission or misstatement by you, or by anyone for whom you are legally responsible, in the course of your business.",
-    wording: { note: SPECIMEN },
-    basis: { label: "Based on Moffatt v. Air Canada, 2024", source: "moffatt" },
-    crux: "Is a chatbot “anyone”? Or is it simply “you”?",
-    reading: {
-      lean: "yes",
-      text: "Pays. The tribunal treated the chatbot as part of the airline's own website, so the misstatement was the airline's. The policy never needs the chatbot to be “anyone”.",
-    },
+    story: "An airline's chatbot promised a grieving customer a discount the airline didn't offer. A tribunal made the airline honour it.",
+    clause: "We cover mistakes made by you, or by [[anyone you're responsible for]].",
+    crux: "Is a chatbot “anyone”?",
+    basis: { label: "Real case: Moffatt v. Air Canada, 2024", source: "moffatt" },
   },
   {
     kind: "case",
     id: "wet-floor-sign",
     title: "The wet-floor sign",
-    insured: "A supermarket chain",
-    facts:
-      "A shopper slips on a wet floor and breaks a wrist. The warning sign beside the spill was made with a generative AI image tool, and the shopper says it was hard to read.",
-    policy: "Covers the supermarket's liability for injuries to the public.",
-    clause: "This insurance does not apply to bodily injury arising out of [[generative artificial intelligence]].",
-    terms: {
-      "generative artificial intelligence":
-        "“A machine-based learning system or model that is trained on data with the ability to create content or responses, including but not limited to text, images, audio, video or code.”",
-    },
-    wording: { note: "Exclusion modelled on the standard AI exclusion. The definition is the standard wording's own.", source: "moneyGeek" },
-    basis: { label: "A question raised on an industry panel, November 2026" },
-    crux: "The AI made the sign. Did the sign cause the fall?",
-    reading: {
-      lean: "yes",
-      text: "Pays, in our view. The wet floor caused the fall; AI only drew the sign. But “arising out of” is read broadly, and an insurer could argue the sign is part of the claim. That is the reach problem in one case.",
-    },
+    story: "A shopper slips on a wet floor and breaks a wrist. The warning sign was made with an AI image tool.",
+    clause: "We don't cover injury [[arising out of generative AI]].",
+    crux: "AI made the sign. Did the sign cause the fall?",
+    basis: { label: "Raised on an industry panel, November 2026. Wording based on the standard AI exclusion", source: "moneyGeek" },
   },
   {
     kind: "case",
     id: "deepfake-call",
-    title: "The deepfake call",
-    insured: "A global engineering firm",
-    facts:
-      "A finance worker joins a video call with the chief financial officer and several colleagues, then sends the money they ask for in 15 transfers. Everyone else on the call was an AI-generated fake.",
-    policy: "Covers money the firm loses to fraud.",
-    clause:
-      "We will pay for loss of money transferred in good faith by an employee relying on an instruction that appears to come from a director or employee but was sent by an [[impostor]].",
-    terms: { impostor: "“A natural person who impersonates a director or employee of the insured.”" },
-    wording: { note: SPECIMEN },
-    basis: { label: "Based on a reported 2024 case in Hong Kong", source: "arup" },
-    crux: "People ran the scam. But did a natural person impersonate anyone, or did software?",
-    reading: {
-      lean: "arguable",
-      text: "Arguable, leaning pays. People ran the scam and the instruction was fraudulent, which is what this cover is for. The weak point is the definition: an insurer could say no natural person impersonated anyone; software did.",
-    },
+    title: "The CFO who wasn't there",
+    story: "A finance worker joins a video call with the CFO and sends the money they ask for. Everyone else on the call was a deepfake.",
+    clause: "We cover money lost to [[a person impersonating]] your staff.",
+    crux: "Is a deepfake “a person”?",
+    basis: { label: "Real case: Hong Kong, 2024", source: "arup" },
   },
   {
     kind: "case",
     id: "hiring-screen",
-    title: "The hiring screen",
-    insured: "A software company that sells AI hiring tools",
-    facts:
-      "Job applicants sue the company, saying its AI screened them out because of their age. They never applied to the company itself, only to its customers. A US court let the claim go ahead as a collective action.",
-    policy: "Covers claims that the company's technology caused others a loss.",
-    clause: "We will not pay for any claim alleging discrimination of any kind against any person.",
-    wording: { note: SPECIMEN },
-    basis: { label: "Based on Mobley v. Workday, 2025", source: "mobley" },
-    crux: "Exclusions like this were written for the insured's own hiring. Does it reach a tool sold to others?",
-    reading: {
-      lean: "no",
-      text: "Doesn't pay, most likely. “Against any person” is wide enough to catch a vendor whose tool is accused of bias. Limit the exclusion to the company's own staff and applicants, and the answer flips.",
-    },
+    title: "The hiring bot",
+    story: "Job seekers sue a software company, saying its AI screening tool rejected them for their age. They never applied to the company itself.",
+    clause: "We don't cover [[any claim of discrimination]].",
+    crux: "Written for the company's own hiring. Does it reach a tool it sells?",
+    basis: { label: "Real case: Mobley v. Workday, 2025", source: "mobley" },
   },
   {
     kind: "case",
     id: "unchecked-report",
-    title: "The unchecked report",
-    insured: "A consulting firm",
-    facts:
-      "A consultant drafts a market study with an AI assistant and skips the fact-check. Three studies it cites don't exist. The client relies on the report, makes a costly decision and sues.",
-    policy: "Covers claims from mistakes in the firm's professional work.",
-    clause: "We will not pay for any claim arising out of any actual or alleged use of [[artificial intelligence]].",
-    terms: { "artificial intelligence": "“Any machine-based system that generates outputs such as content, predictions or decisions.”" },
-    wording: { note: SPECIMEN },
-    basis: { label: "Illustrative scenario" },
-    crux: "The AI invented the studies. A person chose not to check. Which one caused the loss?",
-    reading: {
-      lean: "no",
-      text: "Doesn't pay, on this wording. “Any actual or alleged use” reaches the draft even though the real failure was a person skipping the check. This is how broad exclusions take away cover for ordinary negligence.",
-    },
+    title: "The made-up studies",
+    story: "A consultant writes a client report with AI and skips the fact-check. It cites studies that don't exist. The client acts on it and sues.",
+    clause: "We don't cover any claim [[arising from the use of AI]].",
+    crux: "AI invented the studies. A person didn't check. Which one caused the loss?",
+    basis: { label: "Illustrative" },
   },
   {
     kind: "case",
     id: "refund-agent",
-    title: "The talked-round agent",
-    insured: "An online retailer",
-    facts:
-      "Fraudsters chat with the retailer's AI refund agent and hide instructions in their messages. The agent issues hundreds of refunds to accounts the fraudsters control.",
-    policy: "Covers money the retailer loses to fraud on its computer systems.",
-    clause: "We will pay for loss of money resulting directly from the fraudulent entry of data into your computer system by a third party.",
-    wording: { note: SPECIMEN },
-    basis: { label: "Illustrative scenario" },
-    crux: "The fraudsters typed into the system. But the agent chose to pay. Is that “directly”?",
-    reading: {
-      lean: "arguable",
-      text: "Arguable. The fraudsters did enter data into the retailer's system, which reads like the cover. But the agent made each refund it was allowed to make, and an insurer could say the loss came from that decision, not directly from the fraud.",
-    },
+    title: "The talked-round refund bot",
+    story: "Fraudsters chat with a retailer's AI refund agent and talk it into paying out hundreds of refunds.",
+    clause: "We cover money lost [[directly]] to fraud on your computer systems.",
+    crux: "The bot chose to pay. Is that “directly” fraud?",
+    basis: { label: "Illustrative" },
   },
 ];
 
 export const STANCES: StanceItem[] = [
-  { kind: "stance", id: "silence-pays", topic: "Silence", statement: "If a policy says nothing about AI, it should pay for AI losses.", pole: 1 },
-  { kind: "stance", id: "free-to-exclude", topic: "Freedom to exclude", statement: "Insurers should be free to exclude any loss with a link to AI.", pole: -1 },
-  { kind: "stance", id: "own-cover", topic: "Its own cover", statement: "AI risk should be sold as its own cover, not folded into existing policies.", pole: -1 },
-  { kind: "stance", id: "cause-not-link", topic: "Cause, not connection", statement: "An AI exclusion should only apply when the AI actually caused the loss.", pole: 1 },
-  { kind: "stance", id: "never-underwrote", topic: "Unplanned risk", statement: "Insurers shouldn't have to pay for AI risk they never underwrote.", pole: -1 },
-  { kind: "stance", id: "just-a-tool", topic: "Just a tool", statement: "AI is a tool like any other. Policies should treat it that way.", pole: 1 },
+  { kind: "stance", id: "silence-pays", topic: "Silence", statement: "If a policy is silent on AI, it should pay.", pole: 1 },
+  { kind: "stance", id: "free-to-exclude", topic: "Freedom to exclude", statement: "Insurers should be free to exclude anything AI touches.", pole: -1 },
+  { kind: "stance", id: "own-cover", topic: "Its own cover", statement: "AI needs its own insurance, separate from everything else.", pole: -1 },
+  { kind: "stance", id: "cause-not-link", topic: "Cause, not connection", statement: "An AI exclusion should only bite when AI caused the loss.", pole: 1 },
+  { kind: "stance", id: "never-planned", topic: "Unplanned risk", statement: "If insurers never planned for AI, they shouldn't have to pay for it.", pole: -1 },
+  { kind: "stance", id: "just-a-tool", topic: "Just a tool", statement: "AI is just a tool. Insure it like any other.", pole: 1 },
 ];
 
 export const BONUS: BonusItem = {
@@ -192,21 +133,24 @@ export const BONUS: BonusItem = {
   statement: "Every policy should say clearly whether it covers AI.",
 };
 
-/** Play order: a heavy case, then a quick position, so the pace keeps moving. */
+/** Play order: a case, then a quick statement, so the pace keeps moving. */
 export const ITEMS: Item[] = [...CASES.flatMap((c, i) => [c, STANCES[i]]), BONUS];
 export const SCORED_COUNT = CASES.length + STANCES.length;
 
-export const VERDICTS: { id: Verdict; label: string; tag: string; key: string }[] = [
-  { id: "yes", label: "Yes", tag: "It pays", key: "1" },
-  { id: "arguable", label: "Arguable", tag: "Could go either way", key: "2" },
-  { id: "no", label: "No", tag: "It doesn't pay", key: "3" },
+/** Colour tones (see the tone tokens in globals.css): green for yes and agree, red for no and disagree. */
+export type Tone = "agree-2" | "agree-1" | "maybe" | "disagree-1" | "disagree-2";
+
+export const VERDICTS: { id: Verdict; label: string; tag: string; key: string; tone: Tone }[] = [
+  { id: "yes", label: "Yes", tag: "It pays", key: "1", tone: "agree-2" },
+  { id: "arguable", label: "Arguable", tag: "Could go either way", key: "2", tone: "maybe" },
+  { id: "no", label: "No", tag: "It doesn't pay", key: "3", tone: "disagree-2" },
 ];
 
-export const AGREE: { id: Agree; label: string; short: string; key: string }[] = [
-  { id: 0, label: "Strongly disagree", short: "Strongly disagree", key: "1" },
-  { id: 1, label: "Disagree", short: "Disagree", key: "2" },
-  { id: 2, label: "Agree", short: "Agree", key: "3" },
-  { id: 3, label: "Strongly agree", short: "Strongly agree", key: "4" },
+export const AGREE: { id: Agree; label: string; key: string; tone: Tone }[] = [
+  { id: 0, label: "Strongly disagree", key: "1", tone: "disagree-2" },
+  { id: 1, label: "Disagree", key: "2", tone: "disagree-1" },
+  { id: 2, label: "Agree", key: "3", tone: "agree-1" },
+  { id: 3, label: "Strongly agree", key: "4", tone: "agree-2" },
 ];
 
 export const ROLES = [
@@ -306,4 +250,4 @@ export const ARCHETYPES: Record<ArchetypeId, Archetype> = {
 export const ARCHETYPE_ORDER: ArchetypeId[] = ["gap-hunter", "steady-hand", "watchdog", "architect", "arbiter"];
 
 export const COMPASS_DISCLAIMER =
-  "A survey of professional opinion. Not legal advice, and not a statement of how any policy responds: cover always depends on the full policy and the facts. Wordings are specimens unless a source says otherwise.";
+  "A survey of professional opinion. Not legal advice, and not a statement of how any policy responds: cover always depends on the full policy and the facts. Policy wordings are simplified specimens written in the style of common market language, not any insurer's policy.";

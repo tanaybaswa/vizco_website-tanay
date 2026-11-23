@@ -16,7 +16,9 @@ export type Saved = {
     reason?: "replay" | "flagged" | null;
     at: string;
   } | null;
-  joined?: boolean;
+  /** The email the results go to, once saved, and the Founding member number it got. */
+  email?: string;
+  member?: number | null;
 };
 
 const KEY = `vizco-compass-${COMPASS.version}`;

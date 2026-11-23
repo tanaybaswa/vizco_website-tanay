@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // The Compass share cards read their fonts from disk at request time.
+  outputFileTracingIncludes: {
+    "/api/compass/card": ["./src/lib/compass/fonts/**/*"],
+  },
   async redirects() {
     return [
       {

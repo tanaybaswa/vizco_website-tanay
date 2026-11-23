@@ -8,8 +8,8 @@ export const dynamic = "force-dynamic";
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /**
- * Join the Founding panel: an email to verify the player works in insurance and to send
- * the report, an optional name for the credits, and feedback for the next version.
+ * The last step of the game: a work email to send the results to (and to verify the player
+ * works in insurance), with an optional name for the credits, job title and one-line take.
  * Kept in its own list; answers are never published with a name.
  */
 export async function POST(req: Request) {
@@ -33,9 +33,9 @@ export async function POST(req: Request) {
       email,
       domain: email.split("@")[1],
       name: text(body.name, 120),
-      company: text(body.company, 120),
+      title: text(body.title, 120),
+      take: text(body.take, 280),
       credit: body.credit === true,
-      feedback: text(body.feedback, 2000),
       role: isRole(body.role) ? body.role : null,
       archetype: isArchetype(body.archetype) ? body.archetype : null,
       player: typeof body.player === "number" ? body.player : null,

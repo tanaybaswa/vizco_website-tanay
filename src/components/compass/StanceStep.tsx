@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState, type Ref } from "react";
+import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { SwapArrow } from "@/components/ui";
+import { TONE } from "@/components/compass/tones";
 import { AGREE, STANCES, type Agree, type BonusItem, type StanceItem } from "@/content/compass";
 import { countsFor, withVote, type Tally } from "@/lib/compass/score";
 import { SHOW_FROM } from "@/components/compass/CaseStep";
@@ -10,7 +12,19 @@ const AGREE_IDS = AGREE.map((a) => a.id);
 /** How long the market's lean shows before the next statement. */
 const DWELL = 2400;
 
-/** A quick position: one tap, a glance at the market, then on to the next. */
+/** Two thumbs for "strongly", one otherwise: the strength reads without colour too. */
+function Thumbs({ id, className }: { id: Agree; className: string }) {
+  const Icon = id >= 2 ? ThumbsUp : ThumbsDown;
+  const strong = id === 0 || id === 3;
+  return (
+    <span aria-hidden className="flex items-center gap-0.5">
+      <Icon className={className} strokeWidth={2.25} />
+      {strong ? <Icon className={className} strokeWidth={2.25} /> : null}
+    </span>
+  );
+}
+
+/** A quick statement: one tap, a glance at everyone else, then on to the next. */
 export default function StanceStep({
   item,
   answer,
@@ -50,39 +64,36 @@ export default function StanceStep({
   const t = answer === undefined ? tally : withVote(tally, answer, role);
   const counts = countsFor(t, AGREE_IDS);
   const n = counts.reduce((a, b) => a + b, 0);
-  const agree = counts[2] + counts[3];
-  const agreePct = n ? Math.round((agree / n) * 100) : 0;
+  const shares = counts.map((c) => (n ? Math.round((c / n) * 100) : 0));
+  const agreePct = shares[2] + shares[3];
 
   return (
     <article className="cmp-step-in">
-      <p className="eyebrow flex flex-wrap items-center gap-x-3 gap-y-1 text-cream-muted">
+      <p className="eyebrow text-cream-muted">
         {bonus ? (
           <>
-            <span className="text-cream">One more</span>
-            <span aria-hidden className="h-px w-5 bg-line-strong" />
-            <span>For the report</span>
+            <span className="text-cream">One more</span> &middot; for the report
           </>
         ) : (
           <>
-            <span className="text-cream">Position {String(number).padStart(2, "0")}</span>
-            <span aria-hidden className="h-px w-5 bg-line-strong" />
-            <span>{item.topic}</span>
+            <span className="text-cream">Hot take {String(number).padStart(2, "0")}</span> / {String(STANCES.length).padStart(2, "0")}
           </>
         )}
       </p>
       <h2
         ref={headingRef}
         tabIndex={-1}
-        className="font-display mt-6 max-w-[18em] text-balance text-[2.125rem] leading-[1.06] tracking-[-0.036em] text-cream outline-none sm:mt-8 sm:text-[3.5rem]"
+        className="font-display mt-6 max-w-[16em] text-balance text-[2.25rem] leading-[1.05] tracking-[-0.038em] text-cream outline-none sm:mt-8 sm:text-[3.5rem]"
       >
         &ldquo;{item.statement}&rdquo;
       </h2>
       <p className="mt-5 text-[0.9375rem] text-cream-muted sm:text-base">
-        {bonus ? "Not scored. It goes straight into the report." : "Where do you stand? No middle option: take a side."}
+        {bonus ? "Not scored. It goes straight into the report." : "Agree or disagree? No fence to sit on."}
       </p>
 
-      <div role="radiogroup" aria-label="Where do you stand?" className="mt-8 grid grid-cols-2 gap-2 sm:mt-10 sm:grid-cols-4 sm:gap-3">
+      <div role="radiogroup" aria-label="Agree or disagree?" className="mt-8 grid grid-cols-2 gap-2 sm:mt-10 sm:grid-cols-4 sm:gap-3">
         {AGREE.map((a) => {
+          const tone = TONE[a.tone];
           const on = answer === a.id;
           const dim = answer !== undefined && !on;
           return (
@@ -92,23 +103,20 @@ export default function StanceStep({
               role="radio"
               aria-checked={on}
               onClick={() => onVote(a.id)}
-              className={`group flex min-h-[5.5rem] flex-col justify-between gap-3 border p-3.5 text-left transition-[background-color,border-color,color,opacity,translate] duration-300 sm:min-h-[8rem] sm:p-5 ${
-                on ? "border-cream bg-cream text-ink" : "border-line-strong bg-surface text-cream hover:-translate-y-0.5 hover:border-cream"
+              className={`group relative flex min-h-[6.25rem] flex-col justify-between gap-4 overflow-hidden border p-4 text-left transition-[background-color,border-color,color,opacity,translate,box-shadow] duration-300 sm:min-h-[8.5rem] sm:p-5 ${
+                on ? `${tone.solid} border-transparent text-white shadow-[var(--shadow-lift)]` : `${tone.soft} ${tone.line} text-cream hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]`
               } ${dim ? "opacity-40" : ""}`}
             >
+              <span aria-hidden className={`absolute inset-x-0 top-0 h-1 ${on ? "bg-white/30" : tone.solid}`} />
               <span className="flex w-full items-center justify-between">
-                {/* Where this option sits on the four-step scale */}
-                <span aria-hidden className="flex gap-1">
-                  {AGREE_IDS.map((s) => (
-                    <span
-                      key={s}
-                      className={`h-2.5 w-2.5 ${s === a.id ? (on ? "bg-signal" : "bg-cream") : on ? "bg-ink/20" : "bg-line-dark"}`}
-                    />
-                  ))}
+                <span className={on ? "text-white" : tone.text}>
+                  <Thumbs id={a.id} className="h-5 w-5 sm:h-6 sm:w-6" />
                 </span>
-                <span aria-hidden className={`hidden font-mono text-[0.6875rem] sm:inline ${on ? "text-ink/50" : "text-subtle"}`}>{a.key}</span>
+                <span aria-hidden className={`hidden font-mono text-[0.6875rem] sm:inline ${on ? "text-white/70" : "text-subtle"}`}>
+                  {a.key}
+                </span>
               </span>
-              <span className="font-display text-[1.125rem] leading-[1.1] tracking-[-0.025em] sm:text-[1.375rem]">{a.label}</span>
+              <span className="font-display text-[1.1875rem] leading-[1.1] tracking-[-0.025em] sm:text-[1.375rem]">{a.label}</span>
             </button>
           );
         })}
@@ -123,13 +131,16 @@ export default function StanceStep({
                   <span className="font-display text-2xl tracking-[-0.03em] text-cream">{agreePct}%</span> agree so far
                   <span className="text-subtle"> &middot; {n} answers</span>
                 </p>
-                <span aria-hidden className="mt-3 flex h-2 w-full max-w-sm bg-line-strong">
-                  <span className="cmp-bar block h-full bg-cream" style={{ width: `${agreePct}%` }} />
+                {/* The four answers as one bar, in their colours */}
+                <span aria-hidden className="mt-3 flex h-2.5 w-full max-w-sm overflow-hidden">
+                  {AGREE.map((a, i) => (
+                    <span key={a.id} className={`cmp-bar block h-full ${TONE[a.tone].solid}`} style={{ width: `${shares[i]}%`, animationDelay: `${i * 60}ms` }} />
+                  ))}
                 </span>
               </>
             ) : (
               <p className="text-[0.9375rem] text-cream-muted">
-                {live ? "You're one of the first to take a position on this." : "Noted. Your position is moving on the map."}
+                {live ? "You're one of the first to take a side on this." : "Noted. Your dot is moving on the map."}
               </p>
             )}
           </div>
@@ -138,7 +149,7 @@ export default function StanceStep({
             onClick={onNext}
             className="group relative inline-flex h-[3.25rem] w-full shrink-0 items-center justify-center gap-2.5 overflow-hidden bg-cream px-7 text-base font-medium text-ink transition-[background-color,scale] duration-300 hover:bg-accent-deep active:scale-[0.985] sm:w-auto"
           >
-            {isLast ? "See where you land" : "Next"}
+            {isLast ? "Last step" : "Next"}
             <SwapArrow />
             {auto && !isLast ? (
               <span aria-hidden className="absolute inset-x-0 bottom-0 h-[3px] bg-ink/15">

@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { ARCHETYPES, AXES, COMPASS, type ArchetypeId } from "@/content/compass";
+import type { Position } from "@/lib/compass/score";
 
 /**
  * The share image: paper, ink and one orange square, like the page. Used on LinkedIn and in messages.
@@ -34,10 +35,15 @@ const fonts = async () => {
   ];
 };
 
-function Map({ highlight }: { highlight?: ArchetypeId }) {
+function Map({ highlight, pos }: { highlight?: ArchetypeId; pos?: Position | null }) {
   const S = 400;
   const q = highlight && highlight !== "arbiter" ? QUAD[highlight] : null;
-  const dot = q ? { x: q.left ? S * 0.74 : S * 0.26, y: q.top ? S * 0.74 : S * 0.26 } : { x: S / 2, y: S / 2 };
+  // The player's own dot when we have it; otherwise the middle of their quadrant.
+  const dot = pos
+    ? { x: S / 2 + pos.x * S * 0.46, y: S / 2 - pos.y * S * 0.46 }
+    : q
+      ? { x: q.left ? S * 0.74 : S * 0.26, y: q.top ? S * 0.74 : S * 0.26 }
+      : { x: S / 2, y: S / 2 };
   const axis = { fontSize: 15, letterSpacing: 2.4, color: MUTED, display: "flex" };
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
@@ -87,7 +93,7 @@ function Block({ text, size }: { text: string; size: number }) {
   );
 }
 
-export async function compassImage(id?: ArchetypeId) {
+export async function compassImage(id?: ArchetypeId, pos?: Position | null, headers?: Record<string, string>) {
   const a = id ? ARCHETYPES[id] : null;
   const article = a && /^[aeiou]/i.test(a.bare) ? "an" : "a";
 
@@ -128,10 +134,10 @@ export async function compassImage(id?: ArchetypeId) {
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center" }}>
-          <Map highlight={id} />
+          <Map highlight={id} pos={pos} />
         </div>
       </div>
     ),
-    { ...OG_SIZE, fonts: await fonts() },
+    { ...OG_SIZE, fonts: await fonts(), headers },
   );
 }

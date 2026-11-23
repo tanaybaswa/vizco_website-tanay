@@ -32,6 +32,19 @@
   --ok: #1e8a62;
   --warn: #b5791c;
 
+  /* Compass answer tones: green agrees or pays, red disagrees or doesn't, amber in between.
+     Always paired with an icon and a label, so colour is never the only signal. */
+  --agree-2: #1d7a52;
+  --agree-1: #3e9d6c;
+  --maybe: #b07514;
+  --disagree-1: #d4553f;
+  --disagree-2: #b42318;
+  --agree-2-soft: #e3f2ea;
+  --agree-1-soft: #f0f8f3;
+  --maybe-soft: #fbf3e2;
+  --disagree-1-soft: #fdf0ed;
+  --disagree-2-soft: #fbe3df;
+
   /* Paper objects (certificates, product cards) */
   --paper: #ffffff;
   --paper-3: #e6e6e1;
@@ -67,6 +80,16 @@
   --color-signal-ink: var(--signal-ink);
   --color-ok: var(--ok);
   --color-warn: var(--warn);
+  --color-agree-2: var(--agree-2);
+  --color-agree-1: var(--agree-1);
+  --color-maybe: var(--maybe);
+  --color-disagree-1: var(--disagree-1);
+  --color-disagree-2: var(--disagree-2);
+  --color-agree-2-soft: var(--agree-2-soft);
+  --color-agree-1-soft: var(--agree-1-soft);
+  --color-maybe-soft: var(--maybe-soft);
+  --color-disagree-1-soft: var(--disagree-1-soft);
+  --color-disagree-2-soft: var(--disagree-2-soft);
   --color-paper: var(--paper);
   --color-paper-3: var(--paper-3);
   --color-text: var(--text);
@@ -783,6 +806,9 @@ details[open]::details-content {
 .cmp-animate .cmp-you .cmp-land {
   animation: cmp-drop 0.8s var(--ease-out) 1.05s both;
 }
+.cmp-animate .cmp-other .cmp-land {
+  animation: cmp-drop 0.8s var(--ease-out) 1.6s both;
+}
 @keyframes cmp-draw {
   to {
     stroke-dashoffset: 0;
@@ -897,6 +923,7 @@ details[open]::details-content {
   .cmp-animate .cmp-crowd rect,
   .cmp-animate .cmp-centroid,
   .cmp-animate .cmp-you .cmp-land,
+  .cmp-animate .cmp-other .cmp-land,
   .cmp-stage-in,
   .cmp-step-in,
   .cmp-bar,

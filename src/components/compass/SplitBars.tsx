@@ -1,10 +1,13 @@
-/** How a vote split: one bar per option, the player's own option marked. Grey while the sample is small. */
+import { TONE } from "@/components/compass/tones";
+import type { Tone } from "@/content/compass";
+
+/** How a vote split: one bar per option in its answer colour, the player's own option marked. Paler while the sample is small. */
 export default function SplitBars({
   rows,
   mine,
   early,
 }: {
-  rows: { key: string; label: string; count: number }[];
+  rows: { key: string; label: string; count: number; tone: Tone }[];
   mine?: string;
   early: boolean;
 }) {
@@ -18,12 +21,10 @@ export default function SplitBars({
         const lead = r.count === top && top > 0;
         return (
           <li key={r.key} className="grid grid-cols-[5.75rem_minmax(0,1fr)_3rem] items-center gap-3 sm:grid-cols-[7rem_minmax(0,1fr)_3.5rem] sm:gap-4">
-            <span className={`flex items-center gap-2 text-[0.9375rem] sm:text-base ${lead ? "font-semibold text-cream" : "text-cream-muted"}`}>
-              {r.label}
-            </span>
-            <span className="relative block h-7 bg-ink-2 sm:h-8">
+            <span className={`text-[0.9375rem] sm:text-base ${lead ? "font-semibold text-cream" : "text-cream-muted"}`}>{r.label}</span>
+            <span className={`relative block h-7 sm:h-8 ${TONE[r.tone].soft}`}>
               <span
-                className={`cmp-bar absolute inset-y-0 left-0 ${early ? "bg-subtle" : lead ? "bg-cream" : "bg-cream-muted"}`}
+                className={`cmp-bar absolute inset-y-0 left-0 ${TONE[r.tone].solid} ${early ? "opacity-60" : ""}`}
                 style={{ width: `${Math.max(pct, r.count ? 1.5 : 0)}%`, animationDelay: `${120 + i * 90}ms` }}
               />
               {isMine ? (

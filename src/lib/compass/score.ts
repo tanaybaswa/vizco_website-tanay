@@ -122,3 +122,43 @@ export function percentile(values: number[], v: number): number {
   }
   return (below + equal / 2) / values.length;
 }
+
+/* ---------- Challenge links ---------- */
+
+const V2C: Record<Verdict, string> = { yes: "y", arguable: "a", no: "n" };
+const C2V: Record<string, Verdict> = { y: "yes", a: "arguable", n: "no" };
+const CODE = new RegExp(`^[yan]{${CASES.length}}[0-3]{${STANCES.length}}$`);
+
+/**
+ * A player's scored calls as a short code: one letter per case (y, a, n), then one digit per
+ * statement (0 to 3). Carried in share links so a colleague can compare. No name, no email.
+ */
+export function encodeCalls(a: Answers): string | null {
+  if (!isComplete(a)) return null;
+  return CASES.map((c) => V2C[a[c.id] as Verdict]).join("") + STANCES.map((s) => String(a[s.id])).join("");
+}
+
+export function decodeCalls(code: unknown): Answers | null {
+  if (typeof code !== "string" || !CODE.test(code)) return null;
+  const out: Answers = {};
+  CASES.forEach((c, i) => (out[c.id] = C2V[code[i]]));
+  STANCES.forEach((s, i) => (out[s.id] = Number(code[CASES.length + i]) as Agree));
+  return out;
+}
+
+/** How many scored calls two players share: the same verdict on a case, the same side on a statement. */
+export function agreement(a: Answers, b: Answers) {
+  const cases = CASES.filter((c) => a[c.id] === b[c.id]).length;
+  const side = (v: unknown) => (typeof v === "number" ? v >= 2 : null);
+  const stances = STANCES.filter((s) => side(a[s.id]) !== null && side(a[s.id]) === side(b[s.id])).length;
+  return { cases, stances, total: cases + stances, of: CASES.length + STANCES.length };
+}
+
+/** Clamp and round a position read from a URL. */
+export function parsePosition(x: unknown, y: unknown): Position | null {
+  const nx = Number(x);
+  const ny = Number(y);
+  if (x == null || y == null || !Number.isFinite(nx) || !Number.isFinite(ny)) return null;
+  const c = (n: number) => Math.round(Math.max(-1, Math.min(1, n)) * 100) / 100;
+  return { x: c(nx), y: c(ny) };
+}
