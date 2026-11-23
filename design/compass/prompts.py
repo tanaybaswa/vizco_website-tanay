@@ -27,3 +27,7 @@ P = {
  "type-architect": ("Half-length portrait of a focused border collie architect in rolled-up shirt sleeves and loosened tie, drawing a blueprint at a drafting table with a long ruler and pencil.", "1024x1024", False),
  "type-arbiter": (f"Half-length portrait of {WOLF}, holding a set of perfectly balanced brass scales, calm, wise and trustworthy.", "1024x1024", True),
 }
+
+# case-unchecked-report was redrawn with OpenAI gpt-image-2 (images/edits), from the first version,
+# with the roles swapped: the poodle is the senior client in a pinstripe suit, seated at the desk;
+# the bulldog is the consultant, standing and handing over the report.

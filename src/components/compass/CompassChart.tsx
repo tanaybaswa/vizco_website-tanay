@@ -47,7 +47,10 @@ export default function CompassChart({
   animate = false,
   title = "The AI Cover Compass map",
   className = "",
+  fit = false,
 }: {
+  /** Fill the parent box (both dimensions) instead of sizing by width. */
+  fit?: boolean;
   you?: Position | null;
   /** The orange marker's tag. On a shared page it's the sharer, not the visitor. */
   youLabel?: string;
@@ -76,7 +79,13 @@ export default function CompassChart({
   const lit = (id: ArchetypeId) => highlight === id;
 
   return (
-    <svg viewBox="0 0 480 480" role="img" aria-label={title} className={`block h-auto w-full ${animate ? "cmp-animate" : ""} ${className}`}>
+    <svg
+      viewBox="0 0 480 480"
+      role="img"
+      aria-label={title}
+      preserveAspectRatio="xMidYMid meet"
+      className={`block w-full ${fit ? "h-full" : "h-auto"} ${animate ? "cmp-animate" : ""} ${className}`}
+    >
       <title>{title}</title>
       {/* Frame and quadrants */}
       <rect x={C - H} y={C - H} width={H * 2} height={H * 2} fill="var(--surface)" />

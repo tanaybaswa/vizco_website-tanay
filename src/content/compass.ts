@@ -85,7 +85,7 @@ export const CASES: CaseItem[] = [
     story: "A shopper slips on a wet floor and breaks a wrist. The warning sign was made with an AI image tool.",
     clause: "We don't cover injury [[arising out of generative AI]].",
     crux: "AI made the sign. Did the sign cause the fall?",
-    basis: { label: "Raised on an industry panel, November 2026. Wording based on the standard AI exclusion", source: "moneyGeek" },
+    basis: { label: "From an industry panel, Nov 2026; wording after the standard AI exclusion", source: "moneyGeek" },
     art: art("case-wet-floor-sign", "A dachshund shopper slips on a puddle in a supermarket aisle, apples flying, beside a wet-floor sign."),
   },
   {
@@ -116,7 +116,7 @@ export const CASES: CaseItem[] = [
     clause: "We don't cover any claim [[arising from the use of AI]].",
     crux: "AI invented the studies. A person didn't check. Which one caused the loss?",
     basis: { label: "Illustrative" },
-    art: art("case-unchecked-report", "A poodle consultant hands a thick report to a bulldog client; loose pages float up and dissolve into question marks."),
+    art: art("case-unchecked-report", "A bulldog consultant hands a thick report to a poodle client in a pinstripe suit at her desk; loose pages float up and dissolve into question marks."),
   },
   {
     kind: "case",

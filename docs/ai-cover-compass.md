@@ -1,6 +1,6 @@
 # The AI Cover Compass: concept, experience and build
 
-23 Nov 2026 · @Tanay. Replaces "Covered? (working title)" of 20 Nov 2026. Revised after two reviews of the built MVP.
+23 Nov 2026 · @Tanay. Replaces "Covered? (working title)" of 20 Nov 2026. Revised after three reviews of the built MVP.
 
 **Status:** built and live on the branch preview at `/compass` (branch `feature/gracious-cerf-j473bz`). It needs a free Redis database and a merge to go live; see [To go live](#to-go-live).
 
@@ -19,6 +19,11 @@ The insight from the first plan still holds: **if insurance professionals can't 
 
 | | First build | Now | Why |
 | --- | --- | --- | --- |
+| **Fits one screen** | Long pages that scrolled to reveal results | **Every step fits the screen with no scrolling**, from a 375 x 667 phone to a 1920 x 1080 monitor (tested at nine sizes). The sketch flexes to the height that's left; the header strip tucks away while playing | Nothing to scroll, nothing to hunt for |
+| Results after each question | A panel that appeared below and scrolled into view | **Inside the answer tiles**, like a poll: your call goes solid, the others fill to their share, and the footer says "35% called it your way" | The reveal happens where your eyes already are |
+| Next | Appeared only after answering | **Always in the footer**, waiting until there's an answer. Answers lock once the split is shown | Predictable, and the data stays clean |
+| Last step | One long form | **Two short screens:** what you do, then where to send the results | Each fits one screen |
+| Result | A long page | **One screen with panels:** you (portrait, type, facts), the map, your calls, the full results; sharing in the footer | Everything worth seeing, without scrolling |
 | Where it plays | A full-screen stage over the page | **Inside the page.** Nav and footer stay; a progress bar sticks under the header; the landing sections step aside while you play | It should feel like part of vizco.co, not a separate app |
 | Our view | "Our reading" after each case | **Removed.** Players see only how everyone else called it | Too opinionated for a survey |
 | Cases | A paragraph, a policy description, a clause, a definition, a note | **A two-line story, one line of wording with the key phrase highlighted, and "the catch" in one question** | Simple travels. Every extra line loses people on a phone |
@@ -146,6 +151,7 @@ Every case, hot take and type has a sketch in the same voice: a renowned newspap
 
 - **How they were made:** FLUX.2 [dev] on Cloudflare Workers AI, with the hero wolfhound as a reference image for his scenes so he stays the same character. Prompts are in `design/compass/prompts.py`; the untouched outputs are in `design/compass/`.
 - **Finishing:** tinted to the page's paper colour with black ink, so they sit on the page like the hero. Garbled lettering on two images was painted out by hand. Site files are in `public/compass/art/`; JPEG copies of the type portraits for share cards are in `src/lib/compass/art/`.
+- **Replaced:** the consultant scene (case 5) was redrawn with OpenAI's image editing, from the original, with the roles swapped: the poodle is now the senior client in the pinstripe suit, seated; the bulldog is the consultant handing over the report.
 - **To redo first:** the refund-bot scene reads as two huddled fraudsters, but one head overlaps the other. Regenerate it once more Workers AI capacity is available (the free tier allows a small number of images a day).
 
 ## How a type is worked out

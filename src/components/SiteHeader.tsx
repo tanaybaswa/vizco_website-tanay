@@ -7,6 +7,7 @@ import { ArrowUpRight, ChevronDown } from "lucide-react";
 import Wordmark from "@/components/Wordmark";
 import { SwapArrow } from "@/components/ui";
 import { BOOKING_URL, CHECKER_PROMO, LOGIN_URL, NAV, PROMO, type NavItem } from "@/content/site";
+import { STAGE_EVENT } from "@/lib/compass/events";
 
 const BAR = 36; // announcement strip height, px
 const STRIP =
@@ -29,6 +30,8 @@ function isActive(pathname: string, href: string) {
 export default function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  // While the Compass is playing, the strip tucks away so the game gets the full screen.
+  const [playing, setPlaying] = useState(false);
   const [ind, setInd] = useState({ x: 0, w: 0, on: false, snap: true });
   const pathname = usePathname();
 
@@ -41,6 +44,12 @@ export default function SiteHeader() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const on = (e: Event) => setPlaying(Boolean((e as CustomEvent<boolean>).detail));
+    window.addEventListener(STAGE_EVENT, on);
+    return () => window.removeEventListener(STAGE_EVENT, on);
   }, []);
 
   useEffect(() => {
@@ -63,7 +72,7 @@ export default function SiteHeader() {
     setInd((prev) => ({ x: el.offsetLeft, w: el.offsetWidth, on: true, snap: !prev.on }));
   };
 
-  const compact = scrolled && !open;
+  const compact = (scrolled || playing) && !open;
 
   return (
     <header

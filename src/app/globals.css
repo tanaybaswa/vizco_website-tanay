@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Short viewports (small laptops, landscape tablets): the Compass tightens up so every screen fits */
+@custom-variant short (@media (max-height: 760px));
+
 /* ============================================================
    VizCo: the AI & Emerging Risk Specialty Broker
    "Underwriter grade". Paper and ink, with orange used only as a signal.
@@ -862,15 +865,13 @@ details[open]::details-content {
 @keyframes cmp-step-in {
   from {
     opacity: 0;
-    transform: translateX(24px);
   }
   to {
     opacity: 1;
-    transform: none;
   }
 }
 .cmp-step-in {
-  animation: cmp-step-in 0.5s var(--ease-out) both;
+  animation: cmp-step-in 0.25s ease-out both;
 }
 @keyframes cmp-bar {
   from {

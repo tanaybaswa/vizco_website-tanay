@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { STAGE_EVENT } from "@/components/compass/CompassGame";
+import { STAGE_EVENT } from "@/lib/compass/events";
 
 /** The landing sections below the game. They step aside while someone plays, and come back when they exit. */
 export default function HideWhilePlaying({ children }: { children: ReactNode }) {

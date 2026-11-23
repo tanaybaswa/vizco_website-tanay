@@ -1,33 +1,36 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, RotateCcw } from "lucide-react";
 import { Container, Label, SwapArrow } from "@/components/ui";
 import CompassChart from "@/components/compass/CompassChart";
 import CaseStep from "@/components/compass/CaseStep";
 import StanceStep from "@/components/compass/StanceStep";
-import DetailsStep, { type Details } from "@/components/compass/DetailsStep";
+import { EmailStep, RoleStep, type Details } from "@/components/compass/LastStep";
 import ResultView, { type EmailState, type Result } from "@/components/compass/ResultView";
+import ShareBar from "@/components/compass/ShareBar";
+import { NextButton, StageFooter, Status } from "@/components/compass/Stage";
 import { ARCHETYPES, CASES, COMPASS, ITEMS, VERDICTS, type Agree, type RegionId, type RoleId, type Verdict } from "@/content/compass";
+import { BOOKING_URL } from "@/content/site";
+import { START_EVENT, STAGE_EVENT } from "@/lib/compass/events";
 import {
   archetypeOf,
   countsFor,
   decodeCalls,
+  encodeCalls,
   positionOf,
   splitScore,
   type Answers,
   type CompassStats,
 } from "@/lib/compass/score";
+import { caseView, stanceView } from "@/lib/compass/summary";
 import { loadSaved, save, type Saved } from "@/lib/compass/local";
 
-type Phase = "play" | "details" | "plotting" | "result";
-type CaseStepName = "ask" | "reveal";
-
-/** Other parts of the page start the game with this event, and hear whether it's open through STAGE_EVENT. */
-export const START_EVENT = "compass:start";
-export const STAGE_EVENT = "compass:stage";
+type Phase = "play" | "role" | "email" | "plotting" | "result";
 
 const PLOT_MS = 1900;
+/** How long a hot take's split shows before the next one. */
+const DWELL = 2400;
 const VERDICT_IDS = VERDICTS.map((v) => v.id);
 
 async function fetchStats(fresh = false): Promise<CompassStats | null> {
@@ -40,27 +43,37 @@ async function fetchStats(fresh = false): Promise<CompassStats | null> {
   }
 }
 
+/**
+ * The Compass: the landing hero, then the game in place of it. While playing, the game is one
+ * fixed-height stage under the site header: progress along the top, the step in the middle,
+ * and a footer with the way forward. Every step is laid out to fit that screen without scrolling.
+ */
 export default function CompassGame() {
   const [saved, setSaved] = useState<Saved | null>(null);
   const [stats, setStats] = useState<CompassStats | null>(null);
   const [open, setOpen] = useState(false);
   const [phase, setPhase] = useState<Phase>("play");
   const [index, setIndex] = useState(0);
-  const [step, setStep] = useState<CaseStepName>("ask");
   const [answers, setAnswers] = useState<Answers>({});
   const [role, setRole] = useState<RoleId | null>(null);
   const [region, setRegion] = useState<RegionId | null>(null);
   const [result, setResult] = useState<Result | null>(null);
   const [challenger, setChallenger] = useState<Answers | null>(null);
   const [email, setEmail] = useState<EmailState>({ status: "none" });
+  const [auto, setAuto] = useState(true);
 
   const startedAt = useRef(0);
   const statsAt = useRef(0);
-  const stage = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
 
   const item = ITEMS[index];
   const isLast = index === ITEMS.length - 1;
+  const answer = answers[item.id];
+  const live = !!stats?.live;
+  const view =
+    item.kind === "case"
+      ? caseView(stats?.items[item.id], answer as Verdict | undefined, live)
+      : stanceView(stats?.items[item.id], answer as Agree | undefined, live);
 
   // Remember the player between visits, pick up a colleague's challenge, load the live numbers.
   useEffect(() => {
@@ -71,6 +84,7 @@ export default function CompassGame() {
     if (s.result) setResult(s.result);
     if (s.email) setEmail({ status: "saved", email: s.email, member: s.member ?? null });
     setChallenger(decodeCalls(new URLSearchParams(window.location.search).get("c")));
+    setAuto(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
     fetchStats().then((st) => {
       if (st) {
         setStats(st);
@@ -87,26 +101,25 @@ export default function CompassGame() {
     });
   }, []);
 
-  // Tell the rest of the page when the game takes over, so it can step aside.
+  // Tell the rest of the page (the header, the landing sections) when the game takes over.
   useEffect(() => {
     window.dispatchEvent(new CustomEvent(STAGE_EVENT, { detail: open }));
   }, [open]);
 
-  const toTop = useCallback(() => {
-    window.setTimeout(() => {
-      stage.current?.scrollIntoView({ behavior: "instant", block: "start" });
-      heading.current?.focus({ preventScroll: true });
-    }, 30);
-  }, []);
+  // Every step starts with the page at the top and focus on its heading.
+  useEffect(() => {
+    if (!open) return;
+    window.scrollTo({ top: 0, behavior: "instant" });
+    const id = window.setTimeout(() => heading.current?.focus({ preventScroll: true }), 40);
+    return () => window.clearTimeout(id);
+  }, [open, index, phase]);
 
   const start = useCallback(() => {
     setAnswers({});
     setIndex(0);
-    setStep("ask");
     setPhase("play");
     setOpen(true);
     startedAt.current = Date.now();
-    toTop();
     if (Date.now() - statsAt.current > 60_000) {
       fetchStats(true).then((st) => {
         if (st) {
@@ -115,18 +128,14 @@ export default function CompassGame() {
         }
       });
     }
-  }, [toTop]);
+  }, []);
 
   const showResult = useCallback(() => {
     setPhase("result");
     setOpen(true);
-    toTop();
-  }, [toTop]);
-
-  const exit = useCallback(() => {
-    setOpen(false);
-    window.setTimeout(() => window.scrollTo({ top: 0, behavior: "instant" }), 30);
   }, []);
+
+  const exit = useCallback(() => setOpen(false), []);
 
   useEffect(() => {
     const onStart = () => start();
@@ -134,29 +143,17 @@ export default function CompassGame() {
     return () => window.removeEventListener(START_EVENT, onStart);
   }, [start]);
 
-  // Each new step starts at the top of the game, with focus on its heading.
-  useEffect(() => {
-    if (open) toTop();
-  }, [open, index, phase, toTop]);
-
-  const voteCase = useCallback(
-    (v: Verdict) => {
+  // One answer per question: the split is shown straight after, so the call is locked in.
+  const vote = useCallback(
+    (v: Verdict | Agree) => {
+      if (answers[item.id] !== undefined) return;
       setAnswers((a) => ({ ...a, [item.id]: v }));
       navigator.vibrate?.(8);
-      setStep("reveal");
     },
-    [item],
+    [answers, item],
   );
 
-  const voteStance = useCallback(
-    (a: Agree) => {
-      setAnswers((prev) => ({ ...prev, [item.id]: a }));
-      navigator.vibrate?.(8);
-    },
-    [item],
-  );
-
-  /** Send the email details. Returns once saved or failed; never blocks the result. */
+  /** Send the email details. Never blocks the result. */
   const sendDetails = useCallback(
     async (d: Details, archetype: string) => {
       setEmail({ status: "saving", email: d.email });
@@ -184,6 +181,7 @@ export default function CompassGame() {
       setPhase("plotting");
       const t0 = Date.now();
       const pid = saved?.pid ?? loadSaved().pid;
+      persist({ role, region });
 
       let player: number | null = null;
       let counted = false;
@@ -223,15 +221,22 @@ export default function CompassGame() {
   );
 
   const next = useCallback(() => {
+    if (answers[item.id] === undefined) return;
     if (!isLast) {
       setIndex((i) => i + 1);
-      setStep("ask");
       return;
     }
-    // Already told us their role and email on an earlier run: straight to the result.
-    if (email.status === "saved" && role) void finish(null);
-    else setPhase("details");
-  }, [email.status, finish, isLast, role]);
+    // Known role and email from an earlier run: straight to the result.
+    if (role && email.status === "saved") void finish(null);
+    else setPhase(role ? "email" : "role");
+  }, [answers, email.status, finish, isLast, item, role]);
+
+  // A hot take moves on by itself once answered (not the last one, and not with reduced motion).
+  useEffect(() => {
+    if (!open || phase !== "play" || item.kind === "case" || answer === undefined || isLast || !auto) return;
+    const id = window.setTimeout(next, DWELL);
+    return () => window.clearTimeout(id);
+  }, [open, phase, item, answer, isLast, auto, next]);
 
   // Warm the next sketch so it's there the moment they move on.
   useEffect(() => {
@@ -240,30 +245,27 @@ export default function CompassGame() {
     if (upcoming) new window.Image().src = upcoming.art.src;
   }, [open, phase, index]);
 
-  // Keyboard play: 1 2 3 for a case, 1 to 4 for a statement, Enter to move on.
+  // Keyboard: 1 2 3 for a case, 1 to 4 for a hot take, Enter for next.
   useEffect(() => {
     if (!open || phase !== "play") return;
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      const onControl = t?.tagName === "BUTTON" || t?.tagName === "A";
-      if (item.kind === "case") {
-        if (step === "ask") {
-          const v = VERDICTS.find((x) => x.key === e.key);
-          if (v) voteCase(v.id);
-        } else if (step === "reveal" && e.key === "Enter" && !onControl) next();
-      } else {
-        const n = Number(e.key);
-        if (n >= 1 && n <= 4) voteStance((n - 1) as Agree);
-        else if (e.key === "Enter" && answers[item.id] !== undefined && !onControl) next();
+      if (e.key === "Enter" && t?.tagName !== "BUTTON" && t?.tagName !== "A") {
+        next();
+        return;
       }
+      const n = Number(e.key);
+      if (item.kind === "case") {
+        const v = VERDICTS.find((x) => x.key === e.key);
+        if (v) vote(v.id);
+      } else if (n >= 1 && n <= 4) vote((n - 1) as Agree);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, phase, item, step, answers, next, voteCase, voteStance]);
+  }, [open, phase, item, next, vote]);
 
-  const live = !!stats?.live;
   const players = live ? (stats?.players ?? 0) : 0;
   const placesLeft = Math.max(0, COMPASS.founding - (stats?.founders ?? 0));
   const done = saved?.result ? ARCHETYPES[saved.result.archetype] : null;
@@ -281,59 +283,19 @@ export default function CompassGame() {
     : null;
 
   if (open) {
+    const wide = phase === "result";
     return (
-      <section ref={stage} className="relative" aria-label={COMPASS.name}>
-        <ProgressBar index={index} total={ITEMS.length} phase={phase} onExit={exit} />
-        {/* Tall enough that the footer never creeps up mid-game */}
-        <div
-          className={`mx-auto min-h-[calc(100dvh-10rem)] w-full px-6 pb-24 pt-10 sm:px-8 sm:pt-14 lg:px-10 ${phase === "result" ? "max-w-7xl" : "max-w-5xl"}`}
-        >
+      <section aria-label={COMPASS.name} className="-mt-9 flex h-[calc(100dvh-4.25rem)] flex-col">
+        <ProgressBar index={index} total={ITEMS.length} phase={phase} onExit={exit} wide={wide} />
+        <div className={`mx-auto min-h-0 w-full flex-1 overflow-y-auto overflow-x-hidden px-5 py-3 sm:px-8 sm:py-5 lg:px-10 short:py-3 ${wide ? "max-w-7xl" : "max-w-6xl"}`}>
           {phase === "play" && item.kind === "case" ? (
-            <CaseStep
-              key={item.id}
-              item={item}
-              step={step}
-              answer={answers[item.id] as Verdict | undefined}
-              tally={stats?.items[item.id]}
-              role={role}
-              live={live}
-              onVote={voteCase}
-              onNext={next}
-              isLast={isLast}
-              headingRef={heading}
-            />
+            <CaseStep key={item.id} item={item} answer={answer as Verdict | undefined} view={view} onVote={vote} headingRef={heading} />
           ) : null}
           {phase === "play" && item.kind !== "case" ? (
-            <StanceStep
-              key={item.id}
-              item={item}
-              answer={answers[item.id] as Agree | undefined}
-              tally={stats?.items[item.id]}
-              role={role}
-              live={live}
-              onVote={voteStance}
-              onNext={next}
-              isLast={isLast}
-              headingRef={heading}
-            />
+            <StanceStep key={item.id} item={item} answer={answer as Agree | undefined} view={view} onVote={vote} headingRef={heading} />
           ) : null}
-          {phase === "details" ? (
-            <DetailsStep
-              headingRef={heading}
-              role={role}
-              region={region}
-              onRole={setRole}
-              onRegion={setRegion}
-              onSubmit={(d) => {
-                persist({ role, region });
-                void finish(d);
-              }}
-              onSkip={() => {
-                persist({ role, region });
-                void finish(null);
-              }}
-            />
-          ) : null}
+          {phase === "role" ? <RoleStep role={role} region={region} onRole={setRole} onRegion={setRegion} headingRef={heading} /> : null}
+          {phase === "email" ? <EmailStep headingRef={heading} onSubmit={(d) => void finish(d)} /> : null}
           {phase === "plotting" ? <Plotting /> : null}
           {phase === "result" && result ? (
             <ResultView
@@ -343,11 +305,66 @@ export default function CompassGame() {
               challenger={challenger}
               email={email}
               onEmail={(d) => void sendDetails(d, result.archetype)}
-              onReplay={start}
               headingRef={heading}
             />
           ) : null}
         </div>
+
+        {phase === "play" ? (
+          <StageFooter
+            status={
+              view ? (
+                <Status headline={view.headline} detail={view.detail} />
+              ) : item.kind === "case" ? (
+                <Status headline="Make your call." detail="Yes, Arguable or No. You'll see how everyone called it." />
+              ) : (
+                <Status headline="Take a side." detail="Then see how everyone else leans." />
+              )
+            }
+          >
+            <NextButton
+              onClick={next}
+              disabled={answer === undefined}
+              label={isLast ? "Last step" : "Next"}
+              countdown={item.kind !== "case" && answer !== undefined && !isLast && auto ? DWELL : null}
+            />
+          </StageFooter>
+        ) : null}
+        {phase === "role" ? (
+          <StageFooter status={<Status headline="One tap." detail="Then where to send the results." />}>
+            <NextButton onClick={() => setPhase("email")} disabled={!role} />
+          </StageFooter>
+        ) : null}
+        {phase === "email" ? (
+          <StageFooter status={<span className="hidden sm:inline">Your email is never shown with your answers.</span>}>
+            <button type="button" onClick={() => void finish(null)} className="group h-12 px-2 text-[0.875rem] text-cream-muted transition-colors hover:text-cream sm:px-3 sm:text-[0.9375rem]">
+              <span className="link-draw pb-px">Skip</span>
+            </button>
+            <NextButton type="submit" form="compass-email" label="Send, show my result" />
+          </StageFooter>
+        ) : null}
+        {phase === "result" && result ? (
+          <StageFooter wide status={<ShareBar archetype={result.archetype} pos={{ x: result.x, y: result.y }} code={encodeCalls(result.answers)} />}>
+            <button
+              type="button"
+              onClick={start}
+              aria-label="Play again"
+              className="inline-flex h-11 items-center gap-2 border border-line-strong bg-surface px-3 text-[0.9375rem] font-medium text-cream transition-colors hover:border-cream sm:h-12 sm:px-4"
+            >
+              <RotateCcw className="h-4 w-4" strokeWidth={1.75} />
+              <span className="hidden sm:inline">Play again</span>
+            </button>
+            <a
+              href={BOOKING_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative hidden h-12 items-center gap-2.5 overflow-hidden bg-cream px-5 text-[0.9375rem] font-medium text-ink transition-colors hover:bg-accent-deep md:inline-flex"
+            >
+              Talk to us
+              <SwapArrow />
+            </a>
+          </StageFooter>
+        ) : null}
       </section>
     );
   }
@@ -464,29 +481,23 @@ function Underline() {
   );
 }
 
-/** Sticks under the site header while the game plays, so progress and the way out are always in view. */
-function ProgressBar({ index, total, phase, onExit }: { index: number; total: number; phase: Phase; onExit: () => void }) {
+/** Progress across the top of the stage, with the way out. */
+function ProgressBar({ index, total, phase, onExit, wide }: { index: number; total: number; phase: Phase; onExit: () => void; wide: boolean }) {
   const doneCount = phase === "play" ? index : total;
-  const label = phase === "play" ? `${String(index + 1).padStart(2, "0")} / ${total}` : phase === "details" ? "Last step" : "Done";
+  const label = phase === "play" ? `${String(index + 1).padStart(2, "0")} / ${total}` : phase === "role" || phase === "email" ? "Last step" : "Done";
   return (
-    <div className="sticky top-[4.25rem] z-30 border-b border-line-dark bg-ink/90 backdrop-blur-xl backdrop-saturate-150">
-      <div className={`mx-auto flex h-14 w-full items-center gap-4 px-6 sm:gap-6 sm:px-8 lg:px-10 ${phase === "result" ? "max-w-7xl" : "max-w-5xl"}`}>
+    <div className="shrink-0 border-b border-line-dark bg-ink">
+      <div className={`mx-auto flex h-12 w-full items-center gap-4 px-5 sm:h-14 sm:gap-6 sm:px-8 lg:px-10 ${wide ? "max-w-7xl" : "max-w-6xl"}`}>
         <button
           type="button"
           onClick={onExit}
+          aria-label="Exit the Compass"
           className="group -ml-1 inline-flex h-10 shrink-0 items-center gap-2 px-1 text-[0.875rem] font-medium text-cream-muted transition-colors hover:text-cream"
         >
           <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" strokeWidth={1.75} />
           <span className="hidden sm:inline">Exit</span>
         </button>
-        <div
-          role="progressbar"
-          aria-label="Progress"
-          aria-valuemin={0}
-          aria-valuemax={total}
-          aria-valuenow={doneCount}
-          className="flex flex-1 gap-[3px]"
-        >
+        <div role="progressbar" aria-label="Progress" aria-valuemin={0} aria-valuemax={total} aria-valuenow={doneCount} className="flex flex-1 gap-[3px]">
           {Array.from({ length: total }, (_, i) => (
             <span
               key={i}
@@ -502,7 +513,7 @@ function ProgressBar({ index, total, phase, onExit }: { index: number; total: nu
 
 function Plotting() {
   return (
-    <div className="flex min-h-[55vh] flex-col items-center justify-center text-center" role="status">
+    <div className="flex h-full flex-col items-center justify-center text-center" role="status">
       <div className="relative h-24 w-24">
         <span aria-hidden className="cmp-bar absolute inset-x-0 top-1/2 h-[1.5px] -translate-y-1/2 bg-cream" />
         <span aria-hidden className="absolute inset-y-0 left-1/2 w-[1.5px] -translate-x-1/2 bg-cream" />

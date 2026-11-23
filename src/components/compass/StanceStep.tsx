@@ -1,79 +1,50 @@
 "use client";
 
-import { useEffect, useState, type Ref } from "react";
+import type { Ref } from "react";
 import Image from "next/image";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
-import { SwapArrow } from "@/components/ui";
 import { TONE } from "@/components/compass/tones";
 import { AGREE, STANCES, type Agree, type BonusItem, type StanceItem } from "@/content/compass";
-import { countsFor, withVote, type Tally } from "@/lib/compass/score";
-import { SHOW_FROM } from "@/components/compass/CaseStep";
-
-const AGREE_IDS = AGREE.map((a) => a.id);
-/** How long the market's lean shows before the next statement. */
-const DWELL = 2400;
+import type { View } from "@/lib/compass/summary";
 
 /** Two thumbs for "strongly", one otherwise: the strength reads without colour too. */
 function Thumbs({ id, className }: { id: Agree; className: string }) {
   const Icon = id >= 2 ? ThumbsUp : ThumbsDown;
   const strong = id === 0 || id === 3;
   return (
-    <span aria-hidden className="flex items-center gap-0.5">
+    <span aria-hidden className="flex shrink-0 items-center gap-0.5">
       <Icon className={className} strokeWidth={2.25} />
       {strong ? <Icon className={className} strokeWidth={2.25} /> : null}
     </span>
   );
 }
 
-/** A quick statement: one tap, a glance at everyone else, then on to the next. */
+/**
+ * A hot take, laid out to fit a single screen: the sketch beside the statement, the four
+ * answers along the bottom. Once answered, each tile shows its share.
+ */
 export default function StanceStep({
   item,
   answer,
-  tally,
-  role,
-  live,
+  view,
   onVote,
-  onNext,
-  isLast,
   headingRef,
 }: {
   item: StanceItem | BonusItem;
   answer?: Agree;
-  tally?: Tally;
-  role: string | null;
-  live: boolean;
+  view: View | null;
   onVote: (a: Agree) => void;
-  onNext: () => void;
-  isLast: boolean;
   headingRef: Ref<HTMLHeadingElement>;
 }) {
-  const [auto, setAuto] = useState(true);
   const bonus = item.kind === "bonus";
   const number = bonus ? 0 : STANCES.findIndex((s) => s.id === item.id) + 1;
 
-  useEffect(() => {
-    setAuto(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  }, []);
-
-  // Moves on by itself once answered. Changing the answer restarts the wait.
-  useEffect(() => {
-    if (answer === undefined || !auto || isLast) return;
-    const id = window.setTimeout(onNext, DWELL);
-    return () => window.clearTimeout(id);
-  }, [answer, auto, isLast, onNext]);
-
-  const t = answer === undefined ? tally : withVote(tally, answer, role);
-  const counts = countsFor(t, AGREE_IDS);
-  const n = counts.reduce((a, b) => a + b, 0);
-  const shares = counts.map((c) => (n ? Math.round((c / n) * 100) : 0));
-  const agreePct = shares[2] + shares[3];
-
   return (
-    <article className="cmp-step-in">
+    <article className="cmp-step-in grid h-full grid-rows-[auto_minmax(0,1fr)_auto] gap-3 sm:gap-5 short:gap-3">
       <p className="eyebrow text-cream-muted">
         {bonus ? (
           <>
-            <span className="text-cream">One more</span> &middot; for the report
+            <span className="text-cream">One more</span> &middot; for the report, not scored
           </>
         ) : (
           <>
@@ -81,99 +52,64 @@ export default function StanceStep({
           </>
         )}
       </p>
+
       {/* The sketch, with the statement beside it */}
-      <div className="mt-6 grid items-center gap-6 sm:mt-8 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:gap-10">
-        <Image
-          src={item.art.src}
-          alt={item.art.alt}
-          width={1024}
-          height={1024}
-          unoptimized
-          priority
-          className="mx-auto h-auto w-full max-w-[17rem] select-none md:max-w-none"
-        />
-        <div>
+      <div className="flex min-h-0 flex-col gap-3 md:grid md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:items-center md:gap-10">
+        <div className="relative min-h-0 flex-1 md:h-full">
+          <Image src={item.art.src} alt={item.art.alt} fill unoptimized priority sizes="(min-width: 768px) 40vw, 100vw" className="select-none object-contain" />
+        </div>
+        <div className="shrink-0">
           <h2
             ref={headingRef}
             tabIndex={-1}
-            className="font-display text-balance text-[2.25rem] leading-[1.05] tracking-[-0.038em] text-cream outline-none sm:text-[3.25rem]"
+            className="font-display text-balance text-[1.625rem] leading-[1.06] tracking-[-0.036em] text-cream outline-none sm:text-[2.5rem] lg:text-[3.25rem] short:lg:text-[2.625rem]"
           >
             &ldquo;{item.statement}&rdquo;
           </h2>
-          <p className="mt-5 text-[0.9375rem] text-cream-muted sm:text-base">
-            {bonus ? "Not scored. It goes straight into the report." : "Agree or disagree? No fence to sit on."}
-          </p>
+          <p className="mt-2 text-[0.875rem] text-cream-muted sm:mt-4 sm:text-base">Agree or disagree? No fence to sit on.</p>
         </div>
       </div>
 
-      <div role="radiogroup" aria-label="Agree or disagree?" className="mt-8 grid grid-cols-2 gap-2 sm:mt-10 sm:grid-cols-4 sm:gap-3">
-        {AGREE.map((a) => {
+      {/* The answers */}
+      <div role="radiogroup" aria-label="Agree or disagree?" className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
+        {AGREE.map((a, i) => {
           const tone = TONE[a.tone];
           const on = answer === a.id;
-          const dim = answer !== undefined && !on;
+          const share = view?.shares[i] ?? null;
           return (
             <button
               key={a.id}
               type="button"
               role="radio"
               aria-checked={on}
+              aria-label={`${a.label}${share !== null ? `, ${share}% of players` : ""}`}
               onClick={() => onVote(a.id)}
-              className={`group relative flex min-h-[6.25rem] flex-col justify-between gap-4 overflow-hidden border p-4 text-left transition-[background-color,border-color,color,opacity,translate,box-shadow] duration-300 sm:min-h-[8.5rem] sm:p-5 ${
-                on ? `${tone.solid} border-transparent text-white shadow-[var(--shadow-lift)]` : `${tone.soft} ${tone.line} text-cream hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]`
-              } ${dim ? "opacity-40" : ""}`}
+              className={`relative flex min-h-[3.5rem] items-center justify-between gap-2 overflow-hidden border px-3 py-2 text-left transition-[background-color,border-color,color,box-shadow] duration-200 sm:min-h-[6.5rem] sm:flex-col sm:items-start sm:p-4 short:sm:min-h-[5rem] ${
+                on ? `${tone.solid} border-transparent text-white shadow-[var(--shadow-lift)]` : `${tone.soft} ${tone.line} text-cream hover:shadow-[var(--shadow-card)]`
+              }`}
             >
               <span aria-hidden className={`absolute inset-x-0 top-0 h-1 ${on ? "bg-white/30" : tone.solid}`} />
-              <span className="flex w-full items-center justify-between">
+              {share !== null && !on ? (
+                <span aria-hidden className={`cmp-bar absolute inset-y-0 left-0 ${tone.solid} opacity-[0.14]`} style={{ width: `${share}%` }} />
+              ) : null}
+              <span className="relative flex items-center gap-2.5 sm:w-full sm:justify-between">
                 <span className={on ? "text-white" : tone.text}>
-                  <Thumbs id={a.id} className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <Thumbs id={a.id} className="h-4 w-4 sm:h-5 sm:w-5" />
                 </span>
-                <span aria-hidden className={`hidden font-mono text-[0.6875rem] sm:inline ${on ? "text-white/70" : "text-subtle"}`}>
-                  {a.key}
-                </span>
+                {share !== null ? (
+                  <span className="font-display hidden text-[1.5rem] tabular-nums leading-none tracking-[-0.03em] sm:inline">{share}%</span>
+                ) : (
+                  <span aria-hidden className={`hidden font-mono text-[0.6875rem] sm:inline ${on ? "text-white/70" : "text-subtle"}`}>
+                    {a.key}
+                  </span>
+                )}
               </span>
-              <span className="font-display text-[1.1875rem] leading-[1.1] tracking-[-0.025em] sm:text-[1.375rem]">{a.label}</span>
+              <span className="font-display relative flex-1 text-[0.9375rem] leading-[1.1] tracking-[-0.02em] sm:flex-none sm:text-[1.25rem]">{a.label}</span>
+              {share !== null ? <span className="font-display relative text-base tabular-nums sm:hidden">{share}%</span> : null}
             </button>
           );
         })}
       </div>
-
-      {answer !== undefined ? (
-        <div aria-live="polite" className="cmp-rise mt-8 flex flex-col gap-6 border-t border-line-dark pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="min-w-0 flex-1">
-            {live && n >= SHOW_FROM ? (
-              <>
-                <p className="text-[0.9375rem] text-cream-muted">
-                  <span className="font-display text-2xl tracking-[-0.03em] text-cream">{agreePct}%</span> agree so far
-                  <span className="text-subtle"> &middot; {n} answers</span>
-                </p>
-                {/* The four answers as one bar, in their colours */}
-                <span aria-hidden className="mt-3 flex h-2.5 w-full max-w-sm overflow-hidden">
-                  {AGREE.map((a, i) => (
-                    <span key={a.id} className={`cmp-bar block h-full ${TONE[a.tone].solid}`} style={{ width: `${shares[i]}%`, animationDelay: `${i * 60}ms` }} />
-                  ))}
-                </span>
-              </>
-            ) : (
-              <p className="text-[0.9375rem] text-cream-muted">
-                {live ? "You're one of the first to take a side on this." : "Noted. Your dot is moving on the map."}
-              </p>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={onNext}
-            className="group relative inline-flex h-[3.25rem] w-full shrink-0 items-center justify-center gap-2.5 overflow-hidden bg-cream px-7 text-base font-medium text-ink transition-[background-color,scale] duration-300 hover:bg-accent-deep active:scale-[0.985] sm:w-auto"
-          >
-            {isLast ? "Last step" : "Next"}
-            <SwapArrow />
-            {auto && !isLast ? (
-              <span aria-hidden className="absolute inset-x-0 bottom-0 h-[3px] bg-ink/15">
-                <span key={answer} className="cmp-count absolute inset-0 bg-signal" style={{ animationDuration: `${DWELL}ms` }} />
-              </span>
-            ) : null}
-          </button>
-        </div>
-      ) : null}
     </article>
   );
 }

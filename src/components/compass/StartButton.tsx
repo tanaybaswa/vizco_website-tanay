@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { SwapArrow } from "@/components/ui";
-import { START_EVENT } from "@/components/compass/CompassGame";
+import { START_EVENT } from "@/lib/compass/events";
 
 /** Starts the Compass from anywhere on the page. */
 export default function StartButton({ children = "Make your first call", className = "" }: { children?: ReactNode; className?: string }) {
