@@ -38,15 +38,12 @@ export function NextButton({
   onClick,
   disabled = false,
   label = "Next",
-  countdown,
   type = "button",
   form,
 }: {
   onClick?: () => void;
   disabled?: boolean;
   label?: string;
-  /** Milliseconds until the game moves on by itself; draws a filling line along the bottom. */
-  countdown?: number | null;
   type?: "button" | "submit";
   form?: string;
 }) {
@@ -60,11 +57,24 @@ export function NextButton({
     >
       {label}
       <SwapArrow />
-      {countdown && !disabled ? (
-        <span aria-hidden className="absolute inset-x-0 bottom-0 h-[3px] bg-ink/15">
-          <span className="cmp-count absolute inset-0 bg-signal" style={{ animationDuration: `${countdown}ms` }} />
-        </span>
-      ) : null}
     </button>
+  );
+}
+
+/**
+ * "Press Enter" beside Next, for people with a keyboard. Shown only where there's a fine
+ * pointer (a mouse or trackpad), so phones and tablets don't see a key they don't have.
+ */
+export function EnterHint({ ready }: { ready: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className={`mr-2 hidden items-center gap-2 text-[0.8125rem] transition-opacity duration-200 [@media(pointer:fine)]:inline-flex ${ready ? "text-cream-muted" : "text-subtle opacity-60"}`}
+    >
+      press
+      <kbd className="inline-flex h-7 items-center gap-1 border border-line-strong border-b-2 bg-surface px-2 font-mono text-[0.6875rem] uppercase tracking-[0.08em] text-cream">
+        Enter <span aria-hidden>&#8629;</span>
+      </kbd>
+    </span>
   );
 }

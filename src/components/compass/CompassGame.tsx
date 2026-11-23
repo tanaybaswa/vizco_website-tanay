@@ -8,7 +8,7 @@ import CaseStep from "@/components/compass/CaseStep";
 import StanceStep from "@/components/compass/StanceStep";
 import { EmailStep, RoleStep, type Details } from "@/components/compass/LastStep";
 import ResultView, { type EmailState, type Result } from "@/components/compass/ResultView";
-import { NextButton, StageFooter, Status } from "@/components/compass/Stage";
+import { EnterHint, NextButton, StageFooter, Status } from "@/components/compass/Stage";
 import { ARCHETYPES, CASES, COMPASS, ITEMS, VERDICTS, type Agree, type RegionId, type RoleId, type Verdict } from "@/content/compass";
 import { START_EVENT, STAGE_EVENT } from "@/lib/compass/events";
 import {
@@ -26,8 +26,6 @@ import { loadSaved, save, type Saved } from "@/lib/compass/local";
 type Phase = "play" | "role" | "email" | "plotting" | "result";
 
 const PLOT_MS = 1900;
-/** How long a hot take's split shows before the next one. */
-const DWELL = 2400;
 const VERDICT_IDS = VERDICTS.map((v) => v.id);
 
 async function fetchStats(fresh = false): Promise<CompassStats | null> {
@@ -57,7 +55,6 @@ export default function CompassGame() {
   const [result, setResult] = useState<Result | null>(null);
   const [challenger, setChallenger] = useState<Answers | null>(null);
   const [email, setEmail] = useState<EmailState>({ status: "none" });
-  const [auto, setAuto] = useState(true);
 
   const startedAt = useRef(0);
   const statsAt = useRef(0);
@@ -81,7 +78,6 @@ export default function CompassGame() {
     if (s.result) setResult(s.result);
     if (s.email) setEmail({ status: "saved", email: s.email, member: s.member ?? null });
     setChallenger(decodeCalls(new URLSearchParams(window.location.search).get("c")));
-    setAuto(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
     fetchStats().then((st) => {
       if (st) {
         setStats(st);
@@ -140,14 +136,13 @@ export default function CompassGame() {
     return () => window.removeEventListener(START_EVENT, onStart);
   }, [start]);
 
-  // One answer per question: the split is shown straight after, so the call is locked in.
+  // Players can change their mind until they move on; the last call before Next is the one that counts.
   const vote = useCallback(
     (v: Verdict | Agree) => {
-      if (answers[item.id] !== undefined) return;
       setAnswers((a) => ({ ...a, [item.id]: v }));
       navigator.vibrate?.(8);
     },
-    [answers, item],
+    [item],
   );
 
   /** Send the email details. Never blocks the result. */
@@ -228,13 +223,6 @@ export default function CompassGame() {
     else setPhase(role ? "email" : "role");
   }, [answers, email.status, finish, isLast, item, role]);
 
-  // A hot take moves on by itself once answered (not the last one, and not with reduced motion).
-  useEffect(() => {
-    if (!open || phase !== "play" || item.kind === "case" || answer === undefined || isLast || !auto) return;
-    const id = window.setTimeout(next, DWELL);
-    return () => window.clearTimeout(id);
-  }, [open, phase, item, answer, isLast, auto, next]);
-
   // Warm the next sketch so it's there the moment they move on.
   useEffect(() => {
     if (!open || phase !== "play") return;
@@ -249,7 +237,11 @@ export default function CompassGame() {
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.key === "Enter" && t?.tagName !== "BUTTON" && t?.tagName !== "A") {
+      // Enter moves on, including straight after clicking an answer (focus is then on its tile).
+      // The Next button and links keep their own Enter behaviour.
+      const onTile = t?.getAttribute("role") === "radio";
+      if (e.key === "Enter" && (onTile || (t?.tagName !== "BUTTON" && t?.tagName !== "A"))) {
+        e.preventDefault();
         next();
         return;
       }
@@ -333,12 +325,8 @@ export default function CompassGame() {
                   )
                 }
               >
-                <NextButton
-                  onClick={next}
-                  disabled={answer === undefined}
-                  label={isLast ? "Last step" : "Next"}
-                  countdown={item.kind !== "case" && answer !== undefined && !isLast && auto ? DWELL : null}
-                />
+                <EnterHint ready={answer !== undefined} />
+                <NextButton onClick={next} disabled={answer === undefined} label={isLast ? "Last step" : "Next"} />
               </StageFooter>
             ) : null}
             {phase === "role" ? (
