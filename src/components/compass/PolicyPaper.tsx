@@ -1,8 +1,18 @@
 import { Fragment } from "react";
-import { Source_Serif_4 } from "next/font/google";
+import localFont from "next/font/local";
 
-/* A serif for wording, the way real policies are set. Loaded only where the paper appears. */
-const serif = Source_Serif_4({ subsets: ["latin"], weight: ["400", "600"], display: "swap" });
+/*
+ * A serif for wording, the way real policies are set. Loaded only where the paper appears.
+ * Source Serif 4 (OFL, see fonts/OFL.txt), self-hosted: the Google Fonts loader can fail
+ * the build when Google serves this family without a file extension.
+ */
+const policySerif = localFont({
+  src: "./fonts/source-serif-4-latin-variable.woff2",
+  weight: "400 600",
+  style: "normal",
+  display: "swap",
+  fallback: ["Georgia", "Times New Roman", "serif"],
+});
 
 /** The wording, with the phrase that matters set in the black block. Marked [[like this]]. */
 function Wording({ text }: { text: string }) {
@@ -39,7 +49,7 @@ export default function PolicyPaper({ clause, className = "" }: { clause: string
           <span className="font-mono text-[0.625rem] font-medium uppercase tracking-[0.18em] text-cream">The policy</span>
           <span className="font-mono text-[0.5625rem] uppercase tracking-[0.18em] text-subtle">Specimen wording</span>
         </div>
-        <blockquote className={`${serif.className} mt-5 text-pretty text-[1.25rem] leading-[1.55] text-cream sm:text-[1.4375rem]`}>
+        <blockquote className={`${policySerif.className} mt-5 text-pretty text-[1.25rem] leading-[1.55] text-cream sm:text-[1.4375rem]`}>
           &ldquo;<Wording text={clause} />&rdquo;
         </blockquote>
         {/* The rest of the page, suggested */}
