@@ -6,7 +6,7 @@ import Thesis from "@/components/home/Thesis";
 import Backers from "@/components/home/Backers";
 import ClaimStory from "@/components/home/ClaimStory";
 import WhyNow from "@/components/home/WhyNow";
-import CoverageIndex from "@/components/home/CoverageIndex";
+import RiskMap from "@/components/home/RiskMap";
 import PolicyYear from "@/components/home/PolicyYear";
 import Audiences from "@/components/home/Audiences";
 import FinalCta from "@/components/FinalCta";
@@ -55,7 +55,7 @@ const FAQ = [
 /*
  * The home page tells one story, and each section has its own form so it never reads as
  * a stack of the same panel: the hero, who backs us, a claim from start to finish (why it
- * matters), the numbers (why now), every way AI goes wrong (what we cover), the policy
+ * matters), the numbers (why now), a map of every way AI goes wrong and how deep we go on each (what we cover), the policy
  * year (how we work), the two buyers, then questions and the close.
  */
 export default function Home() {
@@ -66,7 +66,7 @@ export default function Home() {
       <Backers />
       <ClaimStory />
       <WhyNow />
-      <CoverageIndex />
+      <RiskMap />
       <PolicyYear />
       <Audiences />
 
