@@ -108,7 +108,7 @@ export default function ClaimStory() {
       <Container>
         <Reveal className="max-w-4xl">
           <Label>Why it matters</Label>
-          <h2 className="font-display t-h2 mt-7 text-balance text-cream">What happens when your AI gets it wrong.</h2>
+          <h2 className="font-display t-h2 mt-7 text-balance text-cream">What happens when your AI gets it wrong?</h2>
         </Reveal>
 
         <div className="mt-14 grid gap-x-16 lg:mt-0 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] xl:gap-x-24">
