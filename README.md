@@ -28,15 +28,15 @@ npm run build      # production build
 | `src/app/about/`, `src/app/contact/` | Team and contact |
 | `src/app/sitemap.ts`, `src/app/robots.ts` | Sitemap and robots.txt (AI crawlers allowed) |
 | `src/components/ui.tsx` | Shared building blocks: `Container`, `Section`, `SectionHeader`, `Block`, `Label`, `Card`, `Faq`, `Button`, `Em` |
-| `src/content/process.ts`, `src/components/Process.tsx` | The five-step process (Assess, Mitigate, Place, Monitor, Report), used on every page |
-| `src/components/RiskChanges.tsx` | "AI risk can change overnight" panel: why we keep monitoring after the policy is bound |
-| `src/components/home/` | Home-only sections (`Thesis`, `PolicyLine`, `Reading`, `Backers`) |
+| `src/content/process.ts`, `src/components/Process.tsx` | The five-step process (Assess, Mitigate, Place, Monitor, Report). `Process` is the panel version on startups and enterprise; the home page draws the same steps as a policy year (`home/PolicyYear`) |
+| `src/components/RiskChanges.tsx` | "AI risk can change overnight" panel: why we keep monitoring after the policy is bound (enterprise) |
+| `src/components/home/` | Home-only sections, in page order: `Thesis` (hero), `Backers` (logo band), `ClaimStory` + `ClaimPapers` (why it matters: one claim, step by step, with the papers pinned beside it), `WhyNow` (the one dark band: sourced figures), `CoverageIndex` (what we cover), `PolicyYear` (how we work), `Audiences` (enterprises and startups). Each section has its own form; keep it that way rather than repeating one panel style |
 | `src/components/PageHero.tsx`, `FinalCta.tsx`, `CoverageGap.tsx` | Hero, closing call to action, black feature panel |
-| `src/components/DoesItPay.tsx` | The problem as one claim ("Does your insurance pay?" Yes / Maybe / No), used on home and the-problem |
+| `src/components/DoesItPay.tsx` | The problem as one claim ("Does your insurance pay?" Yes / Maybe / No), used on the-problem |
 | `src/components/pages/Visuals.tsx` | Illustrations (AI inventory, vendor stack, certificate) |
 | `src/content/site.ts` | Navigation, footer links, booking/checker URLs, disclaimer, and `PROMO`: the announcement strip, which promotes the AI Cover Compass while it's new (and shows the free check on the Compass itself) |
 | `src/content/team.ts` | Team and advisors |
-| `src/content/exposures.ts`, `src/components/ExposureGroups.tsx` | "How AI goes wrong": 12 failure modes in four groups, shown as tabs of black cards (home and enterprise) |
+| `src/content/exposures.ts`, `src/components/ExposureGroups.tsx` | "How AI goes wrong": 12 failure modes in four groups, shown as tabs of black cards on enterprise, and as an index (`home/CoverageIndex`) on home |
 | `src/lib/seo.ts`, `src/components/JsonLd.tsx` | Per-page metadata helper and structured data |
 | `public/llms.txt` | Plain-text summary for AI answer engines |
 | `public/investors/` | Investor logos (black on transparent) |

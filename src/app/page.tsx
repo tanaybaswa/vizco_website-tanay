@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 import { faqSchema, pageMeta } from "@/lib/seo";
 import JsonLd from "@/components/JsonLd";
+import Reveal from "@/components/Reveal";
 import Thesis from "@/components/home/Thesis";
 import Backers from "@/components/home/Backers";
-import PolicyLine from "@/components/home/PolicyLine";
+import ClaimStory from "@/components/home/ClaimStory";
+import WhyNow from "@/components/home/WhyNow";
+import CoverageIndex from "@/components/home/CoverageIndex";
+import PolicyYear from "@/components/home/PolicyYear";
+import Audiences from "@/components/home/Audiences";
 import FinalCta from "@/components/FinalCta";
-import { Block, Container, Faq, Section, SectionHeader } from "@/components/ui";
-import Process from "@/components/Process";
-import RiskChanges from "@/components/RiskChanges";
-import ExposureGroups from "@/components/ExposureGroups";
+import { Container, Faq, Label } from "@/components/ui";
+import { BOOKING_URL } from "@/content/site";
 
 export const metadata: Metadata = pageMeta({
   title: "VizCo | AI Liability Insurance & Emerging Risk Broker",
@@ -49,32 +52,44 @@ const FAQ = [
   },
 ];
 
+/*
+ * The home page tells one story, and each section has its own form so it never reads as
+ * a stack of the same panel: the hero, who backs us, a claim from start to finish (why it
+ * matters), the numbers (why now), every way AI goes wrong (what we cover), the policy
+ * year (how we work), the two buyers, then questions and the close.
+ */
 export default function Home() {
   return (
     <main>
       <JsonLd data={faqSchema(FAQ)} />
       <Thesis />
-      <PolicyLine />
+      <Backers />
+      <ClaimStory />
+      <WhyNow />
+      <CoverageIndex />
+      <PolicyYear />
+      <Audiences />
 
-      <Block id="coverage" number="01" label="What we cover" title="How AI goes wrong.">
-        <ExposureGroups />
-      </Block>
-
-      <Section id="process">
+      <section id="faq" className="relative py-20 sm:py-28 lg:py-32">
         <Container>
-          <SectionHeader number="02" kicker="How we work" title="Cover that keeps up with your AI." />
-          <Process />
+          <div className="grid gap-12 border-t border-line-dark pt-16 sm:pt-20 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-16">
+            <Reveal className="self-start lg:sticky lg:top-32">
+              <Label>Questions</Label>
+              <h2 className="font-display t-h2 mt-7 text-balance text-cream">What buyers ask us.</h2>
+              <p className="mt-6 max-w-xs text-[1.0625rem] leading-relaxed text-cream-muted">
+                Something else?{" "}
+                <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="link-signal font-medium text-cream">
+                  Talk to us
+                </a>
+                .
+              </p>
+            </Reveal>
+            <Faq items={FAQ} className="lg:mt-2" />
+          </div>
         </Container>
-      </Section>
-
-      <RiskChanges />
-
-      <Block id="faq" number="03" label="Questions" title="What buyers ask us.">
-        <Faq items={FAQ} className="mt-10 max-w-3xl" />
-      </Block>
+      </section>
 
       <FinalCta />
-      <Backers />
     </main>
   );
 }

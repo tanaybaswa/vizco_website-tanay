@@ -589,6 +589,80 @@ details[open]::details-content {
   -webkit-user-select: none !important;
 }
 
+/* ---------- Home page sections (see components/home) ---------- */
+
+/* Bars and rules that draw across from the left once their Reveal is on screen */
+.grow-x {
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 1.2s var(--ease-out) 0.25s;
+}
+.is-visible .grow-x {
+  transform: scaleX(1);
+}
+
+/* Unit squares that fill one after another (each sets its own transition-delay) */
+.fill-in {
+  opacity: 0.14;
+  transition: opacity 0.4s var(--ease-out);
+}
+.is-visible .fill-in {
+  opacity: 1;
+}
+
+/* A stamp landing on the policy in the claim story */
+@keyframes stamp-in {
+  0% {
+    opacity: 0;
+    scale: 1.6;
+  }
+  60% {
+    opacity: 1;
+    scale: 0.94;
+  }
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+.stamp-in {
+  animation: stamp-in 0.5s var(--ease-out) both;
+}
+
+/* Changes landing during the policy year: each mark pings in turn */
+@keyframes event-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  35%,
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+.event-ping {
+  animation: event-ping 4.4s var(--ease-out) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grow-x {
+    transform: none;
+    transition: none;
+  }
+  .fill-in {
+    opacity: 1;
+    transition: none;
+  }
+  .stamp-in {
+    animation: none;
+  }
+  .event-ping {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 /* ---------- Hero portrait plate (see HeroPortrait) ---------- */
 
 @property --sweep {
