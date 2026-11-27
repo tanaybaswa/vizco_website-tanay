@@ -3,6 +3,7 @@ import { faqSchema, pageMeta } from "@/lib/seo";
 import JsonLd from "@/components/JsonLd";
 import Reveal from "@/components/Reveal";
 import Thesis from "@/components/home/Thesis";
+import Affiliations from "@/components/home/Affiliations";
 import Backers from "@/components/home/Backers";
 import ClaimStory from "@/components/home/ClaimStory";
 import WhyNow from "@/components/home/WhyNow";
@@ -54,16 +55,17 @@ const FAQ = [
 
 /*
  * The home page tells one story, and each section has its own form so it never reads as
- * a stack of the same panel: the hero, who backs us, a claim from start to finish (why it
- * matters), the numbers (why now), a map of every way AI goes wrong and how deep we go on each (what we cover), the policy
- * year (how we work), the two buyers, then questions and the close.
+ * a stack of the same panel: the hero, where our expertise comes from, a claim from start
+ * to finish (why it matters), the numbers (why now), a map of the risks and how deep we
+ * test each (what we cover), the policy year (how we work), the two buyers, questions,
+ * the close, and who backs us.
  */
 export default function Home() {
   return (
     <main>
       <JsonLd data={faqSchema(FAQ)} />
       <Thesis />
-      <Backers />
+      <Affiliations />
       <ClaimStory />
       <WhyNow />
       <RiskMap />
@@ -90,6 +92,7 @@ export default function Home() {
       </section>
 
       <FinalCta />
+      <Backers />
     </main>
   );
 }

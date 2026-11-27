@@ -30,7 +30,7 @@ npm run build      # production build
 | `src/components/ui.tsx` | Shared building blocks: `Container`, `Section`, `SectionHeader`, `Block`, `Label`, `Card`, `Faq`, `Button`, `Em` |
 | `src/content/process.ts`, `src/components/Process.tsx` | The five-step process (Assess, Mitigate, Place, Monitor, Report). `Process` is the panel version on startups and enterprise; the home page draws the same steps as a policy year (`home/PolicyYear`) |
 | `src/components/RiskChanges.tsx` | "AI risk can change overnight" panel: why we keep monitoring after the policy is bound (enterprise) |
-| `src/components/home/` | Home-only sections, in page order: `Thesis` (hero), `Backers` (logo band), `ClaimStory` + `ClaimPapers` (why it matters: one claim, step by step, with the papers pinned beside it), `WhyNow` (the one dark band: sourced figures), `RiskMap` (what we cover: twelve risks as spokes, four depths as rings, with a panel per risk), `PolicyYear` (how we work), `Audiences` (enterprises and startups). Each section has its own form; keep it that way rather than repeating one panel style |
+| `src/components/home/` | Home-only sections, in page order: `Thesis` (hero), `Affiliations` (the "Expertise from" logo band), `ClaimStory` + `ClaimPapers` (why it matters: one claim, step by step, with the papers pinned beside it), `WhyNow` (the one dark band: sourced figures), `RiskMap` (what we cover: twelve risks as spokes, four depths as rings, with a panel per risk), `PolicyYear` (how we work), `Audiences` (enterprises and startups), then the FAQ, the close and `Backers` (investors and SOC 2, at the foot). Each section has its own form; keep it that way rather than repeating one panel style |
 | `src/components/PageHero.tsx`, `FinalCta.tsx`, `CoverageGap.tsx` | Hero, closing call to action, black feature panel |
 | `src/components/DoesItPay.tsx` | The problem as one claim ("Does your insurance pay?" Yes / Maybe / No), used on the-problem |
 | `src/components/pages/Visuals.tsx` | Illustrations (AI inventory, vendor stack, certificate) |
@@ -40,7 +40,8 @@ npm run build      # production build
 | `src/lib/seo.ts`, `src/components/JsonLd.tsx` | Per-page metadata helper and structured data |
 | `public/llms.txt` | Plain-text summary for AI answer engines |
 | `public/investors/` | Investor logos (black on transparent) |
-| `docs/` | How the hero portrait (`hero-portrait.md`) and the favicon (`favicon.md`) were made, and the AI Cover Compass plan, including how its art was made (`ai-cover-compass.md`) |
+| `src/content/affiliations.ts`, `public/affiliations/` | The logo band under the home hero ("Expertise from"): where the team and advisors studied and worked, and our investors. See `docs/affiliations.md` before adding one |
+| `docs/` | How the hero portrait (`hero-portrait.md`), the favicon (`favicon.md`) and the affiliation logos (`affiliations.md`) were made and how to rebuild them, and the AI Cover Compass plan, including how its art was made (`ai-cover-compass.md`) |
 | `design/` | Source art and build scripts for those images, and the Compass sketches with their prompts (`design/compass/`). Not served; `public/` and `src/app/` hold the generated files |
 
 ## Design system
@@ -62,6 +63,7 @@ npm run build      # production build
 - No MGA mentions and no competitor comparisons. Don't cite competitor brokers' research.
 - The call to action is always **"Talk to us"**, never "Talk to a broker".
 - No performance guarantees.
+- Logos only for real ties (a degree, a job, an investment), as wordmarks, never university seals. See `docs/affiliations.md`.
 - Keep copy short and visual. Home hero copy makes statements, not questions.
 - Educational content must be researched and relevant to the buyer, with every figure or claim linked to a real source beside it. Never invent data.
 

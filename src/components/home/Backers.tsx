@@ -11,10 +11,10 @@ const BACKERS = [
   { name: "Transpose Platform", src: "/investors/transpose.png", width: 2338, height: 300, className: "h-[1.125rem] sm:h-[1.375rem]" },
 ];
 
-/** A quiet proof band, straight under the home hero. */
+/** A quiet proof band at the foot of the home page. */
 export default function Backers() {
   return (
-    <section aria-label="Investors and attestation">
+    <section aria-label="Investors and attestation" className="pb-24 sm:pb-32">
       <Container>
         <Reveal className="grid border-y border-line-dark lg:grid-cols-[auto_1fr_auto]">
           <p className="eyebrow flex items-center py-6 text-cream-muted lg:pr-10">Backed by</p>
